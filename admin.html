@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — I Need Coffee</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#18100A;--espresso:#261408;--roast:#3D1F0D;--brown:#6B3520;
+  --gold:#D4882A;--gold-hi:#F0B854;--cream:#FAF3E8;--latte:#E8D9BF;
+  --text:#2A1608;--muted:#7A5030;--white:#FEFCF8;--red:#C0392B;--green:#27AE60;
+}
+html,body{min-height:100vh;-webkit-font-smoothing:antialiased}
+body{background:var(--espresso);font-family:'Lato',sans-serif;font-size:14px;color:var(--cream)}
+
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:rgba(255,255,255,.05);border:1px solid rgba(212,136,42,.2);border-radius:12px;padding:48px 40px;width:100%;max-width:380px;text-align:center}
+.login-logo{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--gold-hi);margin-bottom:6px}
+.login-sub{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(250,243,232,.4);margin-bottom:36px}
+.login-field{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(212,136,42,.2);border-radius:6px;padding:13px 16px;font-family:'Lato',sans-serif;font-size:15px;color:var(--cream);outline:none;transition:border-color .2s;margin-bottom:14px;display:block}
+.login-field:focus{border-color:var(--gold)}
+.login-field::placeholder{color:rgba(250,243,232,.3)}
+.btn-login{width:100%;background:var(--gold);border:none;border-radius:6px;padding:14px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--espresso);font-weight:700;cursor:pointer;transition:background .2s}
+.btn-login:hover{background:var(--gold-hi)}
+.login-error{color:#E74C3C;font-size:13px;margin-top:12px;display:none;font-style:italic}
+
+#admin-panel{display:none;min-height:100vh;flex-direction:column}
+.admin-header{background:var(--ink);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(212,136,42,.15);position:sticky;top:0;z-index:100}
+.admin-header h1{font-family:'Playfair Display',serif;font-size:20px;color:var(--gold-hi)}
+.admin-header span{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(250,243,232,.35);margin-left:10px}
+.header-btns{display:flex;gap:8px;align-items:center}
+.btn-link{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;background:transparent;border:1px solid rgba(240,184,84,.25);border-radius:4px;padding:6px 14px;color:rgba(250,243,232,.4);cursor:pointer;text-decoration:none;display:flex;align-items:center;transition:all .2s}
+.btn-link:hover{color:var(--gold-hi);border-color:var(--gold)}
+
+.admin-body{flex:1;max-width:960px;margin:0 auto;padding:32px 20px 100px;width:100%}
+
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--ink);border-top:1px solid rgba(212,136,42,.2);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;z-index:200}
+.save-status{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(250,243,232,.4)}
+.save-status.saved{color:var(--green)}
+.save-status.unsaved{color:var(--gold-hi)}
+.btn-save{background:var(--gold);border:none;border-radius:6px;padding:11px 28px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--espresso);font-weight:700;cursor:pointer;transition:background .2s}
+.btn-save:hover{background:var(--gold-hi)}
+.btn-reset{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:8px 16px;color:rgba(250,243,232,.3);cursor:pointer;transition:all .2s}
+.btn-reset:hover{color:var(--red);border-color:var(--red)}
+
+.admin-section{margin-bottom:40px}
+.admin-section-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold-hi);margin-bottom:4px}
+.admin-section-line{height:1px;background:linear-gradient(to right,var(--gold),transparent);margin-bottom:20px;opacity:.4}
+.group-header{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin:20px 0 8px;opacity:.7}
+
+.items-grid{display:grid;gap:10px}
+.item-row{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:14px 18px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;transition:border-color .2s}
+.item-row:hover{border-color:rgba(212,136,42,.3)}
+.item-label{font-size:14px;color:var(--cream);font-weight:400;margin-bottom:2px}
+.item-sublabel{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(250,243,232,.3)}
+.price-wrap{display:flex;align-items:center;gap:6px}
+.currency{font-family:'DM Mono',monospace;font-size:13px;color:var(--gold);opacity:.7}
+.price-input{background:rgba(212,136,42,.1);border:1px solid rgba(212,136,42,.3);border-radius:6px;padding:8px 12px;font-family:'Playfair Display',serif;font-size:18px;color:var(--gold-hi);width:100px;text-align:right;outline:none;transition:border-color .2s}
+.price-input:focus{border-color:var(--gold-hi);background:rgba(212,136,42,.18)}
+@media(max-width:560px){.item-row{grid-template-columns:1fr}.price-input{width:100%}}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">I Need Coffee</div>
+    <div class="login-sub">Panel de Administración</div>
+    <input class="login-field" type="text" id="login-user" placeholder="Usuario" autocomplete="off">
+    <input class="login-field" type="password" id="login-pass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-login" onclick="doLogin()">Entrar</button>
+    <p class="login-error" id="login-err">Usuario o contraseña incorrectos</p>
+  </div>
+</div>
+
+<div id="admin-panel">
+  <div class="admin-header">
+    <h1>I Need Coffee <span>Admin</span></h1>
+    <div class="header-btns">
+      <a href="index.html" class="btn-link">Ver carta</a>
+      <button class="btn-link" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+    <div class="admin-section">
+      <div class="admin-section-title">🥐 Comida</div>
+      <div class="admin-section-line"></div>
+      <div class="group-header">Bowls &amp; Toasts</div>
+      <div class="items-grid">
+        <div class="item-row"><div><div class="item-label">Yogurt</div><div class="item-sublabel">Frutas de temporada, coco, muesli</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="yogurt" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">½ Toast</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="toast_half" data-def="1,20" type="text" value="1,20"></div></div>
+        <div class="item-row"><div><div class="item-label">1 Toast</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="toast_full" data-def="2,30" type="text" value="2,30"></div></div>
+        <div class="item-row"><div><div class="item-label">Croissant</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="croissant" data-def="1,70" type="text" value="1,70"></div></div>
+        <div class="item-row"><div><div class="item-label">Bocadillo (Sandwich) Incluye 2 ingredientes</div><div class="item-sublabel"></div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="bocadillo" data-def="4,80" type="text" value="4,80"></div></div>
+        <div class="item-row"><div><div class="item-label">Bagel Incluye 2 ingredientes</div><div class="item-sublabel"></div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="bagel" data-def="4,20" type="text" value="4,20"></div></div>
+      </div>
+      <div class="group-header" style="margin-top:24px">Extras</div>
+      <div class="items-grid">
+        <div class="item-row"><div><div class="item-label">Extra ingrediente</div><div class="item-sublabel">Tomate, mantequilla, pavo, jamón...</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="extra_normal" data-def="0,70" type="text" value="0,70"></div></div>
+        <div class="item-row"><div><div class="item-label">Extra ingrediente especial</div><div class="item-sublabel">Philadelphia, salmón, aguacate...</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="extra_especial" data-def="0,90" type="text" value="0,90"></div></div>
+      </div>
+      <div class="group-header" style="margin-top:24px">Rolls &amp; Bollería</div>
+      <div class="items-grid">
+        <div class="item-row"><div><div class="item-label">Roll casero de pavo y queso</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="roll_turkey" data-def="2,80" type="text" value="2,80"></div></div>
+        <div class="item-row"><div><div class="item-label">Roll Gourmet</div><div class="item-sublabel">Pavo, queso, tomate, aguacate, mostaza</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="roll_gourmet" data-def="4,50" type="text" value="4,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Bizcocho vegano casero</div><div class="item-sublabel">Banana bread · Carrot cake · Pumpkin chocolate</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="bizcocho" data-def="3,00" type="text" value="3,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Cinnamon Roll vegano casero</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="cinnamon" data-def="3,00" type="text" value="3,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Napolitana</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="napolitana" data-def="1,80" type="text" value="1,80"></div></div>
+        <div class="item-row"><div><div class="item-label">Muffin choco sin gluten</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="muffin" data-def="2,80" type="text" value="2,80"></div></div>
+        <div class="item-row"><div><div class="item-label">Sfogliatella Riccia</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="sfogliatella" data-def="2,80" type="text" value="2,80"></div></div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">🍹 Batidos</div>
+      <div class="admin-section-line"></div>
+      <div class="items-grid">
+        <div class="item-row"><div><div class="item-label">Pineapple Sunset</div><div class="item-sublabel">Piña, papaya, mango</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="s01" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Strawberry Delight</div><div class="item-sublabel">Fresa, melocotón, papaya</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="s02" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Strawberry Fantasy</div><div class="item-sublabel">Fresa, plátano</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="s03" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Mango Dream</div><div class="item-sublabel">Pera, mango</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="s04" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Raspberry Heaven</div><div class="item-sublabel">Manzana, frambuesa, arándano, mango</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="s05" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Jungle Juice</div><div class="item-sublabel">Mango, fresa, arándano, açai</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="s06" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Coconut Crush</div><div class="item-sublabel">Piña, coco</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="s08" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Green Reviver</div><div class="item-sublabel">Kale, mango, plátano, limón</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="s09" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Carrot Boost</div><div class="item-sublabel">Zanahoria, piña, papaya, goji, kiwi</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="s10" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Ginger Beets</div><div class="item-sublabel">Remolacha, jengibre, arándanos, piña</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="s11" data-def="5,00" type="text" value="5,00"></div></div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">☕ Cafés</div>
+      <div class="admin-section-line"></div>
+      <div class="items-grid">
+        <div class="item-row"><div><div class="item-label">Espresso — Regular</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="espresso_r" data-def="1,50" type="text" value="1,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Espresso — XL</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="espresso_xl" data-def="2,70" type="text" value="2,70"></div></div>
+        <div class="item-row"><div><div class="item-label">Con leche — Regular</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="leche_r" data-def="1,70" type="text" value="1,70"></div></div>
+        <div class="item-row"><div><div class="item-label">Con leche — XL</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="leche_xl" data-def="3,00" type="text" value="3,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Americano — Regular</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="americano_r" data-def="2,00" type="text" value="2,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Americano — XL</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="americano_xl" data-def="3,00" type="text" value="3,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Macchiato — Regular</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="macchiato_r" data-def="1,60" type="text" value="1,60"></div></div>
+        <div class="item-row"><div><div class="item-label">Macchiato — XL</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="macchiato_xl" data-def="2,80" type="text" value="2,80"></div></div>
+        <div class="item-row"><div><div class="item-label">Cappuccino — Regular</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="cappuccino_r" data-def="2,50" type="text" value="2,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Cappuccino — XL</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="cappuccino_xl" data-def="3,70" type="text" value="3,70"></div></div>
+        <div class="item-row"><div><div class="item-label">Moca</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="moca" data-def="3,80" type="text" value="3,80"></div></div>
+        <div class="item-row"><div><div class="item-label">Flat White</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="flatwhite" data-def="3,00" type="text" value="3,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Chocolate — Regular</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="choc_r" data-def="2,00" type="text" value="2,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Chocolate — XL</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="choc_xl" data-def="3,00" type="text" value="3,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Chai</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="chai" data-def="3,50" type="text" value="3,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Dirty Chai</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="dirty_chai" data-def="4,50" type="text" value="4,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Matcha</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="matcha" data-def="3,50" type="text" value="3,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Tea / Infusión</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="tea" data-def="2,00" type="text" value="2,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Tea / Infusión con leche</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="tea_milk" data-def="2,70" type="text" value="2,70"></div></div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">🧊 Bebidas Frías</div>
+      <div class="admin-section-line"></div>
+      <div class="items-grid">
+        <div class="item-row"><div><div class="item-label">Ice Coffee</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="ice_coffee" data-def="2,10" type="text" value="2,10"></div></div>
+        <div class="item-row"><div><div class="item-label">Ice Latte</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="ice_latte" data-def="3,80" type="text" value="3,80"></div></div>
+        <div class="item-row"><div><div class="item-label">Ice Americano</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="ice_americano" data-def="3,50" type="text" value="3,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Ice Chai Latte</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="ice_chai" data-def="4,20" type="text" value="4,20"></div></div>
+        <div class="item-row"><div><div class="item-label">Ice Dirty Chai</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="ice_dirty_chai" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Ice Matcha</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="ice_matcha" data-def="4,20" type="text" value="4,20"></div></div>
+        <div class="item-row"><div><div class="item-label">Ice Moca</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="ice_moca" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Frappe</div><div class="item-sublabel">Chocolate, vainilla, caramelo o avellana</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="frappe" data-def="5,00" type="text" value="5,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Affogato al Caffé</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="affogato" data-def="4,50" type="text" value="4,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Extra aroma o hielo</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="extra_aroma" data-def="0,70" type="text" value="0,70"></div></div>
+        <div class="item-row"><div><div class="item-label">Agua</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="agua" data-def="1,50" type="text" value="1,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Agua con gas</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="agua_gas" data-def="2,00" type="text" value="2,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Bebidas Italianas Bio</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="italian" data-def="3,50" type="text" value="3,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Kombucha Bio</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="kombucha" data-def="3,50" type="text" value="3,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Refrescos</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="refrescos" data-def="2,00" type="text" value="2,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Cerveza</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="cerveza" data-def="2,00" type="text" value="2,00"></div></div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">🍊 Zumos Naturales</div>
+      <div class="admin-section-line"></div>
+      <div class="items-grid">
+        <div class="item-row"><div><div class="item-label">Zumo naranja — Regular</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="naranja_r" data-def="3,00" type="text" value="3,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Zumo naranja — Grande</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="naranja_l" data-def="4,50" type="text" value="4,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Zumo piña/manzana — Regular</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="pina_r" data-def="2,00" type="text" value="2,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Zumo piña/manzana — Grande</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="pina_l" data-def="3,00" type="text" value="3,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Zumo de granada natural</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="granada" data-def="4,00" type="text" value="4,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Zumo de Granajibre</div><div class="item-sublabel">Granada · Naranja · Jengibre</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="granajibre" data-def="4,00" type="text" value="4,00"></div></div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">✦ Café en Grano</div>
+      <div class="admin-section-line"></div>
+      <div class="items-grid">
+        <div class="item-row"><div><div class="item-label">Colombia</div><div class="item-sublabel">250g · 100% arábica</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="bean_col" data-def="8,00" type="text" value="8,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Brasil · Guatemala · Honduras</div><div class="item-sublabel">250g · Blend 50/25/25</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="bean_bgh" data-def="9,50" type="text" value="9,50"></div></div>
+        <div class="item-row"><div><div class="item-label">Etiopía · Brasil · Perú</div><div class="item-sublabel">250g · Blend 40/35/25</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="bean_ebp" data-def="12,00" type="text" value="12,00"></div></div>
+        <div class="item-row"><div><div class="item-label">Blend Descafeinado</div><div class="item-sublabel">250g · 75% arábica + 25% robusta</div></div><div class="price-wrap"><span class="currency">€</span><input class="price-input" data-id="bean_dc" data-def="8,00" type="text" value="8,00"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="save-bar">
+    <span class="save-status" id="save-status">Sin cambios</span>
+    <div style="display:flex;gap:10px">
+      <button class="btn-reset" onclick="resetAll()">Restaurar defaults</button>
+      <button class="btn-save" onclick="saveAll()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var ADMIN_USER = 'admin';
+var ADMIN_PASS = 'ineed2024';
+var BIN_URL    = 'https://api.jsonbin.io/v3/b/69c1a062c3097a1dd551fa59';
+var API_KEY    = '$2a$10$OF/aphLfABPvb.xCzP7sxeubM//Uad97gTOm2i2sx7U01hYs89xKK';
+
+function hdrs() {
+  return {
+    'Content-Type': 'application/json',
+    'X-Master-Key': API_KEY,
+    'X-Bin-Versioning': 'false'
+  };
+}
+
+// ── AUTH ──────────────────────────────
+function doLogin() {
+  var u = document.getElementById('login-user').value.trim();
+  var p = document.getElementById('login-pass').value;
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display  = 'flex';
+    document.getElementById('login-err').style.display    = 'none';
+    loadSaved();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  document.getElementById('admin-panel').style.display  = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+document.getElementById('login-user').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('login-pass').focus();
+});
+
+// ── JSONBIN ───────────────────────────
+async function loadSaved() {
+  setStatus('loading');
+  try {
+    var res  = await fetch(BIN_URL, { headers: hdrs() });
+    var data = await res.json();
+    var prices = data.record || {};
+    document.querySelectorAll('.price-input').forEach(function(inp) {
+      var v = prices[inp.getAttribute('data-id')];
+      if (v !== undefined) inp.value = v;
+    });
+    setStatus('saved');
+  } catch(e) {
+    toast('⚠ No se pudo conectar con el servidor', true);
+    setStatus('saved');
+  }
+  document.querySelectorAll('.price-input').forEach(function(inp) {
+    inp.addEventListener('input', function() { setStatus('unsaved'); });
+  });
+}
+
+async function saveAll() {
+  var prices = {};
+  document.querySelectorAll('.price-input').forEach(function(inp) {
+    prices[inp.getAttribute('data-id')] = inp.value;
+  });
+  setStatus('saving');
+  try {
+    var res = await fetch(BIN_URL, {
+      method: 'PUT', headers: hdrs(), body: JSON.stringify(prices)
+    });
+    if (!res.ok) throw new Error(res.status);
+    setStatus('saved');
+    toast('✓ Precios guardados correctamente');
+  } catch(e) {
+    toast('✗ Error al guardar. Revisa la conexión.', true);
+    setStatus('unsaved');
+  }
+}
+
+async function resetAll() {
+  if (!confirm('¿Restaurar todos los precios a los valores originales?')) return;
+  var prices = {};
+  document.querySelectorAll('.price-input').forEach(function(inp) {
+    inp.value = inp.getAttribute('data-def');
+    prices[inp.getAttribute('data-id')] = inp.getAttribute('data-def');
+  });
+  try {
+    await fetch(BIN_URL, {
+      method: 'PUT', headers: hdrs(), body: JSON.stringify(prices)
+    });
+    setStatus('saved');
+    toast('✓ Precios restaurados');
+  } catch(e) {
+    toast('✗ Error al restaurar', true);
+  }
+}
+
+// ── UI HELPERS ────────────────────────
+function setStatus(type) {
+  var el = document.getElementById('save-status');
+  var map = {
+    saved:   ['✓ Sincronizado',        'saved'],
+    unsaved: ['● Cambios sin guardar', 'unsaved'],
+    saving:  ['⟳ Guardando...',        'unsaved'],
+    loading: ['⟳ Cargando...',         'unsaved']
+  };
+  el.textContent = map[type][0];
+  el.className   = 'save-status ' + map[type][1];
+}
+
+function toast(msg, isErr) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:'
+    + (isErr ? '#C0392B' : '#27AE60')
+    + ';color:#fff;padding:12px 28px;border-radius:8px;font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.1em;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.4)';
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 2800);
+}
+</script>
+</body>
+</html>
