@@ -536,9 +536,8 @@ var INC_API_KEY = '$2a$10$OF/aphLfABPvb.xCzP7sxeubM//Uad97gTOm2i2sx7U01hYs89xKK'
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    var rec = data.record || {};
-    applyPatches(rec.patches || {});
-    applyExtras(rec.extras || []);
+    applyPatches(data.patches || {});
+    applyExtras(data.extras || []);
   })
   .catch(function() {/* sin internet: muestra defaults */});
 
