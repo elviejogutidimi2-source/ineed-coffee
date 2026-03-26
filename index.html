@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I Need Coffee — Granada</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#18100A;--espresso:#261408;--roast:#3D1F0D;--brown:#6B3520;--caramel:#B05E20;--gold:#D4882A;--gold-hi:#F0B854;--cream:#FAF3E8;--parchment:#F2E8D4;--latte:#E8D9BF;--text:#2A1608;--muted:#7A5030;--white:#FEFCF8;--r-sm:6px;--r-md:10px;--shadow:0 2px 16px rgba(24,16,10,.10);--shadow-lg:0 8px 32px rgba(24,16,10,.16)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--cream);color:var(--text);font-family:'Lato',sans-serif;font-size:15px;line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.5}
+.lang-bar{background:var(--ink);display:flex;justify-content:flex-end;align-items:center;gap:4px;padding:8px 16px;border-bottom:1px solid rgba(212,136,42,.12)}
+.lang-btn{background:transparent;border:1px solid rgba(240,184,84,.15);border-radius:4px;padding:5px 12px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;color:rgba(250,243,232,.38);cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.lang-btn:hover{color:var(--gold-hi);border-color:rgba(240,184,84,.4)}
+.lang-btn.active{color:var(--gold-hi);border-color:var(--gold);background:rgba(212,136,42,.1)}
+header{background:var(--espresso);background-image:radial-gradient(ellipse 80% 60% at 15% 110%,#6B352055 0%,transparent 55%),radial-gradient(ellipse 60% 50% at 85% -10%,#D4882A1A 0%,transparent 55%);color:var(--cream);text-align:center;padding:40px 20px;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;width:320px;height:320px;border:1px solid rgba(212,136,42,.1);border-radius:50%;top:-120px;right:-80px}
+.h-logo-img{display:block;max-width:clamp(200px,60vw,440px);width:100%;margin:0 auto}
+.h-sub{margin-top:14px;font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(13px,3.5vw,16px);color:var(--latte);opacity:.65;letter-spacing:.06em}
+.wifi-badge{display:inline-flex;align-items:center;gap:7px;margin-top:20px;background:rgba(255,255,255,.06);border:1px solid rgba(240,184,84,.25);padding:8px 18px;border-radius:100px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold-hi);letter-spacing:.1em}
+.wifi-badge svg{width:14px;height:14px;flex-shrink:0}
+.nav-wrapper{background:var(--roast);border-top:1px solid rgba(255,255,255,.06);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.nav-inner{display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;max-width:860px;margin:0 auto;padding:0 4px}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-tab{flex-shrink:0;padding:15px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(250,243,232,.4);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.nav-tab:hover{color:var(--gold-hi)}
+.nav-tab.active{color:var(--gold-hi);border-bottom-color:var(--gold)}
+.section{display:none;max-width:820px;margin:0 auto;padding:40px 16px 72px;animation:fadeUp .35s ease both}
+.section.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.sec-head{text-align:center;margin-bottom:40px}
+.sec-eyebrow{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.sec-title{font-family:'Playfair Display',serif;font-size:clamp(38px,9vw,62px);font-weight:700;line-height:1.1;color:var(--espresso)}
+.sec-title em{font-style:italic;color:var(--caramel);font-weight:400}
+.sec-rule{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:18px}
+.sec-rule::before,.sec-rule::after{content:'';height:1px;width:50px}
+.sec-rule::before{background:linear-gradient(to right,transparent,var(--gold))}
+.sec-rule::after{background:linear-gradient(to left,transparent,var(--gold))}
+.sec-rule span{color:var(--gold);font-size:16px}
+.group-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid var(--latte);padding-bottom:10px;margin:36px 0 6px}
+.menu-item{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:18px 0;border-bottom:1px solid var(--latte)}
+.menu-item:last-of-type{border-bottom:none}
+.mi-left{flex:1;min-width:0}
+.mi-name{font-family:'Playfair Display',serif;font-size:clamp(17px,4vw,20px);font-weight:600;color:var(--espresso);line-height:1.3}
+.mi-name em{font-style:italic;font-weight:400;color:var(--brown)}
+.mi-desc{font-size:13.5px;color:var(--muted);font-style:italic;margin-top:3px;line-height:1.5}
+.mi-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.tag{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:100px;border:1px solid;white-space:nowrap}
+.t-vegan{color:#3D7A54;border-color:#3D7A5455;background:#3D7A540C}
+.t-gf{color:#8B5020;border-color:#8B502055;background:#8B50200C}
+.t-special{color:var(--gold);border-color:#D4882A55;background:#D4882A0C}
+.t-bio{color:#5A7A3D;border-color:#5A7A3D55;background:#5A7A3D0C}
+.mi-price{font-family:'Playfair Display',serif;font-size:clamp(18px,4.5vw,22px);font-weight:400;color:var(--gold);white-space:nowrap;flex-shrink:0;padding-top:2px}
+.mi-price sup{font-family:'DM Mono',monospace;font-size:11px;vertical-align:super;letter-spacing:0}
+.sub-price{font-size:13px;color:var(--muted);margin-left:4px}
+.info-note{background:var(--white);border:1px solid var(--latte);border-left:3px solid var(--gold);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:16px 20px;font-size:14px;color:var(--muted);font-style:italic;margin:24px 0;line-height:1.7}
+.info-note strong{font-style:normal;color:var(--brown);font-weight:700}
+.extras-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0 32px}
+@media(max-width:480px){.extras-grid{grid-template-columns:1fr}}
+.extras-card{background:var(--white);border:1px solid var(--latte);border-radius:var(--r-md);padding:22px 18px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.extras-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-hi))}
+.ec-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--brown);margin-bottom:4px}
+.ec-price{font-family:'Playfair Display',serif;font-size:30px;color:var(--gold);margin-bottom:14px;line-height:1}
+.ec-list{font-size:13px;color:var(--muted);font-style:italic;line-height:1.8}
+.drinks-table{width:100%;border-collapse:collapse;margin-bottom:36px}
+.drinks-table th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-align:right;padding:8px 14px 14px;border-bottom:1px solid var(--latte)}
+.drinks-table th:first-child{text-align:left;padding-left:0}
+.drinks-table td{padding:13px 14px;border-bottom:1px solid var(--parchment);vertical-align:baseline}
+.drinks-table td:first-child{padding-left:0;font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--espresso)}
+.drinks-table td:not(:first-child){text-align:right;font-family:'Playfair Display',serif;font-size:17px;color:var(--gold)}
+.drinks-table td.nd{color:var(--latte);font-size:13px}
+.drinks-table tr:last-child td{border-bottom:none}
+.dt-note{font-size:12.5px;color:var(--muted);font-style:italic;font-family:'Lato',sans-serif}
+@media(max-width:560px){
+  .drinks-table thead{display:none}
+  .drinks-table,.drinks-table tbody,.drinks-table tr,.drinks-table td{display:block}
+  .drinks-table tr{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--parchment);flex-wrap:wrap;gap:2px 8px}
+  .drinks-table tr:last-child{border-bottom:none}
+  .drinks-table td{border:none;padding:0}
+  .drinks-table td:first-child{flex:1 0 55%;font-size:15px}
+  .drinks-table td:not(:first-child){font-size:15px;text-align:right;flex-shrink:0}
+  .drinks-table td:not(:first-child)::before{content:attr(data-label) ' ';font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-right:3px}
+  .drinks-table td.nd{display:none}
+}
+.tea-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
+@media(max-width:480px){.tea-grid{grid-template-columns:1fr}}
+.tea-block{background:var(--white);border:1px solid var(--latte);border-left:3px solid var(--gold);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:16px 18px}
+.tea-type{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;font-style:italic;color:var(--brown);margin-bottom:4px}
+.tea-flavors{font-size:13px;color:var(--muted);line-height:1.6}
+.smoothies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:28px}
+.sm-card{background:var(--white);border:1px solid var(--latte);border-radius:var(--r-md);padding:18px 16px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .18s;-webkit-tap-highlight-color:transparent}
+.sm-card:active{transform:scale(.98)}
+@media(hover:hover){.sm-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}}
+.sm-num{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--gold);margin-bottom:7px}
+.sm-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--espresso);line-height:1.3;margin-bottom:5px}
+.sm-ing{font-size:12.5px;color:var(--muted);font-style:italic;line-height:1.5}
+.sm-price{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);margin-top:10px}
+.sm-unavail{opacity:.38}
+.sm-unavail .sm-name::after{content:' (N/D)';font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.1em;color:var(--muted)}
+.bean-card{background:var(--espresso);color:var(--cream);border-radius:var(--r-md);padding:clamp(22px,5vw,36px);margin-bottom:16px;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
+.bean-card::before{content:'';position:absolute;bottom:-50px;right:-50px;width:180px;height:180px;border:1.5px solid rgba(212,136,42,.12);border-radius:50%}
+.bc-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.bc-origin{font-family:'Playfair Display',serif;font-size:clamp(17px,4.5vw,24px);font-weight:700;line-height:1.2;color:var(--white)}
+.bc-price{font-family:'Playfair Display',serif;font-size:clamp(22px,5vw,28px);color:var(--gold-hi);font-weight:400;flex-shrink:0}
+.bc-desc{font-size:13.5px;color:rgba(250,243,232,.65);font-style:italic;line-height:1.7;margin-bottom:14px}
+.bc-scores{display:flex;flex-wrap:wrap;gap:7px}
+.score-pill{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;padding:4px 11px;background:rgba(212,136,42,.14);border:1px solid rgba(212,136,42,.28);border-radius:100px;color:var(--gold-hi);white-space:nowrap}
+footer{background:var(--ink);color:rgba(250,243,232,.45);text-align:center;padding:36px 20px;font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:.1em;line-height:2.2}
+footer strong{color:var(--gold-hi);font-weight:400}
+footer a{color:var(--gold-hi);text-decoration:none}
+@media(min-width:600px){.section{padding:52px 28px 80px}header{padding:48px 28px 52px}}
+@media(min-width:860px){.section{padding:60px 0 100px}}
+</style>
+</head>
+<body>
+
+<div class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('es',this)">ES</button>
+  <button class="lang-btn" onclick="setLang('en',this)">EN</button>
+  <button class="lang-btn" onclick="setLang('it',this)">IT</button>
+  <button class="lang-btn" onclick="setLang('fr',this)">FR</button>
+</div>
+
+<header>
+  <img class="h-logo-img" src="data:image/webp;base64,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" alt="I Need Coffee Granada">
+  <p class="h-sub" data-i18n="sub">100% Artesanal · Granada, España</p>
+
+</header>
+
+<nav class="nav-wrapper">
+  <div class="nav-inner">
+    <button class="nav-tab active" onclick="show('comida',this)" data-i18n="tab_food">🥐 Comida</button>
+    <button class="nav-tab" onclick="show('batidos',this)" data-i18n="tab_smoothies">🍹 Batidos</button>
+    <button class="nav-tab" onclick="show('cafes',this)" data-i18n="tab_coffees">☕ Cafés</button>
+    <button class="nav-tab" onclick="show('frios',this)" data-i18n="tab_cold">🧊 Fríos</button>
+    <button class="nav-tab" onclick="show('zumos',this)" data-i18n="tab_juices">🍊 Zumos</button>
+    <button class="nav-tab" onclick="show('granos',this)" data-i18n="tab_beans">✦ Grano</button>
+  </div>
+</nav>
+
+<section class="section active" id="comida">
+  <div class="sec-head"><p class="sec-eyebrow" data-i18n="food_eyebrow">Desayunos &amp; Aperitivos</p><h2 class="sec-title" data-i18n="food_title">La <em>Carta</em></h2><div class="sec-rule"><span>✦</span></div></div>
+  <p class="group-label" data-i18n="grp_bowls">Para Comer </p>
+  <div class="menu-item" data-pid="yogurt"><div class="mi-left"><p class="mi-name">Yogurt</p><p class="mi-desc" data-i18n="yogurt_desc">Frutas de temporada, coco, muesli</p></div><div class="mi-price"><sup>€</sup>5,00</div></div>
+  <div class="menu-item" data-pid="toast_half"><div class="mi-left"><p class="mi-name">½ Toast</p><p class="mi-desc" data-i18n="toast_h">Extra ingrediente +€0,70 · Extra especial +€0,90</p></div><div class="mi-price"><sup>€</sup>1,20</div></div>
+  <div class="menu-item" data-pid="toast_full"><div class="mi-left"><p class="mi-name">1 Toast</p><p class="mi-desc" data-i18n="toast_f">Extra ingrediente +€0,70 · Extra especial +€0,90</p></div><div class="mi-price"><sup>€</sup>2,30</div></div>
+  <div class="menu-item" data-pid="croissant"><div class="mi-left"><p class="mi-name">Croissant</p><p class="mi-desc" data-i18n="croissant_d">Extra ingrediente +€0,70 · Extra especial +€0,90</p></div><div class="mi-price"><sup>€</sup>1,70</div></div>
+  <div class="menu-item" data-pid="bocadillo"><div class="mi-left"><p class="mi-name" data-i18n="boc_name">Bocadillo <em>(Sandwich)</em> <em>· Incluye 2 ingredientes</em></p><p class="mi-desc" data-i18n="boc_desc">Extra +€0,70 · Extra especial +€0,90</p></div><div class="mi-price"><sup>€</sup>4,80</div></div>
+  <div class="menu-item" data-pid="bagel"><div class="mi-left"><p class="mi-name" data-i18n="bagel_name">Bagel <em>· Incluye 2 ingredientes</em></p><p class="mi-desc" data-i18n="bagel_d">Extra +€0,70 · Extra especial +€0,90</p></div><div class="mi-price"><sup>€</sup>4,20</div></div>
+  <p class="group-label" data-i18n="grp_rolls">Rolls &amp; Bollería</p>
+  <div class="menu-item" data-pid="roll_casero"><div class="mi-left"><p class="mi-name" data-i18n="roll_t">Roll casero de pavo y queso</p></div><div class="mi-price"><sup>€</sup>2,80</div></div>
+  <div class="menu-item" data-pid="roll_gourmet"><div class="mi-left"><p class="mi-name">Roll Gourmet</p><p class="mi-desc" data-i18n="roll_g">Pavo, queso, tomate, aguacate, mostaza</p><div class="mi-tags"><span class="tag t-special">Gourmet</span></div></div><div class="mi-price"><sup>€</sup>4,50</div></div>
+  <div class="menu-item" data-pid="bizcocho"><div class="mi-left"><p class="mi-name" data-i18n="bizco_name">Bizcochos veganos sin gluten <em>casero</em></p><p class="mi-desc" data-i18n="bizco_desc">Banana bread · Carrot cake · Pumpkin chocolate</p><div class="mi-tags"><span class="tag t-vegan" data-i18n="tag_v">Vegano</span><span class="tag t-gf" data-i18n="tag_gf">Sin Gluten</span></div></div><div class="mi-price"><sup>€</sup>3,00</div></div>
+  <div class="menu-item" data-pid="cinnamon"><div class="mi-left"><p class="mi-name" data-i18n="cinn_name">Cinnamon Roll vegano <em>casero</em></p><div class="mi-tags"><span class="tag t-vegan" data-i18n="tag_v2">Vegano</span></div></div><div class="mi-price"><sup>€</sup>3,00</div></div>
+  <div class="menu-item" data-pid="napolitana"><div class="mi-left"><p class="mi-name">Napolitana</p></div><div class="mi-price"><sup>€</sup>1,80</div></div>
+  <div class="menu-item" data-pid="muffin"><div class="mi-left"><p class="mi-name" data-i18n="muffin_n">Muffin choco</p><div class="mi-tags"><span class="tag t-gf" data-i18n="tag_gf2">Sin Gluten</span></div></div><div class="mi-price"><sup>€</sup>2,80</div></div>
+  <div class="menu-item" data-pid="sfogliatella"><div class="mi-left"><p class="mi-name">Sfogliatella Riccia</p><p class="mi-desc" data-i18n="sfog_d">Pastelería italiana artesanal</p></div><div class="mi-price"><sup>€</sup>2,80</div></div>
+  <p class="group-label" data-i18n="grp_extras">Ingredientes</p>
+  <div class="extras-grid">
+    <div class="extras-card"><p class="ec-title" data-i18n="ext_t">Ingrediente</p><p class="ec-price">€0,70</p><p class="ec-list" data-i18n="ext_list">Tomate · Mantequilla · Queso fundido · Pavo · Mermelada fresa o melocotón · Mix semillas · Ensalada · Jamón ibérico · Mayonesa · Paté ibérico</p></div>
+    <div class="extras-card"><p class="ec-title" data-i18n="ext_st">Ingrediente Especial</p><p class="ec-price">€0,90</p><p class="ec-list" data-i18n="ext_slist">Philadelphia · Salmón · Aguacate · Atún · Huevo cocido · Pesto · Tomate seco · Hummus casero · Pimientos rojos · Aceitunas negras · Mostaza · Nueces · Miel · Nutella · Crema de pistacchio</p></div>
+  </div>
+</section>
+
+<section class="section" id="batidos">
+  <div class="sec-head"><p class="sec-eyebrow" data-i18n="sm_eye">Frutas &amp; Naturaleza</p><h2 class="sec-title" data-i18n="sm_title">Batidos <em>Naturales</em></h2><div class="sec-rule"><span>✦</span></div></div>
+  <div class="info-note" data-i18n="sm_base"><strong>Base a elegir:</strong> Zumo de piña/manzana · Agua · Leche · Bebidas vegetales</div>
+  <div class="smoothies-grid">
+    <div class="sm-card" data-pid="sm01"><p class="sm-num">No.01</p><p class="sm-name">Pineapple Sunset</p><p class="sm-ing" data-i18n="s01">Piña, papaya, mango</p><p class="sm-price">€5,00</p></div>
+    <div class="sm-card" data-pid="sm02"><p class="sm-num">No.02</p><p class="sm-name">Strawberry Delight</p><p class="sm-ing" data-i18n="s02">Fresa, melocotón, papaya</p><p class="sm-price">€5,00</p></div>
+    <div class="sm-card" data-pid="sm03"><p class="sm-num">No.03</p><p class="sm-name">Strawberry Fantasy</p><p class="sm-ing" data-i18n="s03">Fresa, plátano</p><p class="sm-price">€5,00</p></div>
+    <div class="sm-card" data-pid="sm04"><p class="sm-num">No.04</p><p class="sm-name">Mango Dream</p><p class="sm-ing" data-i18n="s04">Pera, mango</p><p class="sm-price">€5,00</p></div>
+    <div class="sm-card" data-pid="sm05"><p class="sm-num">No.05</p><p class="sm-name">Raspberry Heaven</p><p class="sm-ing" data-i18n="s05">Manzana, frambuesa, arándano, mango</p><p class="sm-price">€5,00</p></div>
+    <div class="sm-card" data-pid="sm06"><p class="sm-num">No.06</p><p class="sm-name">Jungle Juice</p><p class="sm-ing" data-i18n="s06">Mango, fresa, arándano, açai</p><p class="sm-price">€5,00</p></div>
+    <div class="sm-card sm-unavail" data-pid="sm07"><p class="sm-num">No.07</p><p class="sm-name">Power Granate</p><p class="sm-price">€5,00</p></div>
+    <div class="sm-card" data-pid="sm08"><p class="sm-num">No.08</p><p class="sm-name">Coconut Crush</p><p class="sm-ing" data-i18n="s08">Piña, coco</p><p class="sm-price">€5,00</p></div>
+    <div class="sm-card" data-pid="sm09"><p class="sm-num">No.09</p><p class="sm-name">Green Reviver</p><p class="sm-ing" data-i18n="s09">Kale, mango, plátano, limón</p><p class="sm-price">€5,00</p></div>
+    <div class="sm-card" data-pid="sm10"><p class="sm-num">No.10</p><p class="sm-name">Carrot Boost</p><p class="sm-ing" data-i18n="s10">Zanahoria, piña, papaya, goji, kiwi</p><p class="sm-price">€5,00</p></div>
+    <div class="sm-card" data-pid="sm11"><p class="sm-num">No.11</p><p class="sm-name">Ginger Beets</p><p class="sm-ing" data-i18n="s11">Remolacha, jengibre, arándanos, piña</p><p class="sm-price">€5,00</p></div>
+  </div>
+</section>
+
+<section class="section" id="cafes">
+  <div class="sec-head"><p class="sec-eyebrow" data-i18n="cof_eye">100% Arábica Natural</p><h2 class="sec-title" data-i18n="cof_title"><em>Para</em> Beber</h2><div class="sec-rule"><span>✦</span></div></div>
+  <table class="drinks-table">
+    <thead><tr><th data-i18n="th_drink">Bebida</th><th data-i18n="th_reg">Regular</th><th data-i18n="th_large">Grande</th><th>XL</th></tr></thead>
+    <tbody>
+      <tr data-pid="espresso"><td>Espresso</td><td data-label="Reg">€1,50</td><td class="nd" data-label="Gr">—</td><td data-label="XL">€2,70</td></tr>
+      <tr data-pid="con_leche"><td data-i18n="d_milk">Con leche</td><td data-label="Reg">€1,70</td><td class="nd" data-label="Gr">—</td><td data-label="XL">€3,00</td></tr>
+      <tr data-pid="americano"><td>Americano</td><td data-label="Reg">€2,00</td><td class="nd" data-label="Gr">—</td><td data-label="XL">€3,00</td></tr>
+      <tr data-pid="macchiato"><td>Macchiato <span class="dt-note" data-i18n="d_cortado">(Cortado)</span></td><td data-label="Reg">€1,60</td><td class="nd" data-label="Gr">—</td><td data-label="XL">€2,80</td></tr>
+      <tr data-pid="cappuccino"><td>Cappuccino</td><td data-label="Reg">€2,50</td><td class="nd" data-label="Gr">—</td><td data-label="XL">€3,70</td></tr>
+      <tr data-pid="moca"><td>Moca</td><td class="nd" data-label="Reg">—</td><td data-label="Gr">€3,80</td><td class="nd" data-label="XL">—</td></tr>
+      <tr data-pid="flat_white"><td>Flat White <span class="dt-note" data-i18n="d_fw">(doble carga)</span></td><td class="nd" data-label="Reg">—</td><td data-label="Gr">€3,00</td><td class="nd" data-label="XL">—</td></tr>
+      <tr data-pid="chocolate"><td data-i18n="d_choc">Chocolate</td><td data-label="Reg">€2,00</td><td class="nd" data-label="Gr">—</td><td data-label="XL">€3,00</td></tr>
+      <tr data-pid="chai"><td>Chai</td><td class="nd" data-label="Reg">—</td><td data-label="Gr">€3,50</td><td class="nd" data-label="XL">—</td></tr>
+      <tr data-pid="dirty_chai"><td>Dirty Chai <span class="dt-note" data-i18n="d_dc">(hielo+café)</span></td><td class="nd" data-label="Reg">—</td><td data-label="Gr">€4,50</td><td class="nd" data-label="XL">—</td></tr>
+      <tr data-pid="matcha"><td>Matcha</td><td class="nd" data-label="Reg">—</td><td data-label="Gr">€3,50</td><td class="nd" data-label="XL">—</td></tr>
+      <tr data-pid="tea"><td data-i18n="d_tea">Tea / Infusión</td><td data-label="Reg">€2,00</td><td class="nd" data-label="Gr">—</td><td class="nd" data-label="XL">—</td></tr>
+      <tr data-pid="tea_leche"><td data-i18n="d_team">Tea / Infusión con leche</td><td data-label="Reg">€2,70</td><td class="nd" data-label="Gr">—</td><td class="nd" data-label="XL">—</td></tr>
+    </tbody>
+  </table>
+  <p class="group-label" data-i18n="grp_teas">Variedades de Té</p>
+  <div class="tea-grid">
+    <div class="tea-block"><p class="tea-type" data-i18n="tea_bl">Black Tea</p><p class="tea-flavors">English Breakfast · Earl Grey · Pakistani · Spicy Chai</p></div>
+    <div class="tea-block"><p class="tea-type" data-i18n="tea_rd">Red Tea</p><p class="tea-flavors">Pu-erh</p></div>
+    <div class="tea-block"><p class="tea-type" data-i18n="tea_gr">Green Tea</p><p class="tea-flavors" data-i18n="tea_gr_f">Gunpowder · Amaretto · Menthos · Noche de Toronto · Jengibre y Limón</p></div>
+    <div class="tea-block"><p class="tea-type" data-i18n="tea_hr">Infusiones</p><p class="tea-flavors" data-i18n="tea_hr_f">Manzanilla · Rooibos · Sierra Nevada · Honeybush</p></div>
+  </div>
+</section>
+
+<section class="section" id="frios">
+  <div class="sec-head"><p class="sec-eyebrow" data-i18n="cold_eye">Refrescantes &amp; Especiales</p><h2 class="sec-title" data-i18n="cold_title">Bebidas <em>Frías</em></h2><div class="sec-rule"><span>✦</span></div></div>
+  <p class="group-label" data-i18n="grp_iced">Cafés con Hielo</p>
+  <div class="menu-item" data-pid="ice_coffee"><div class="mi-left"><p class="mi-name">Ice Coffee</p><p class="mi-desc" data-i18n="ic_d">Café con hielo</p></div><div class="mi-price"><sup>€</sup>2,10</div></div>
+  <div class="menu-item" data-pid="ice_latte"><div class="mi-left"><p class="mi-name">Ice Latte</p><p class="mi-desc" data-i18n="il_d">Café con leche o bebidas vegetales y hielo</p></div><div class="mi-price"><sup>€</sup>3,80</div></div>
+  <div class="menu-item" data-pid="ice_americano"><div class="mi-left"><p class="mi-name">Ice Americano</p><p class="mi-desc" data-i18n="ia_d">Café americano con hielo</p></div><div class="mi-price"><sup>€</sup>3,50</div></div>
+  <div class="menu-item" data-pid="ice_chai"><div class="mi-left"><p class="mi-name">Ice Chai Latte</p><p class="mi-desc" data-i18n="icl_d">Chai latte con hielo</p></div><div class="mi-price"><sup>€</sup>4,20</div></div>
+  <div class="menu-item" data-pid="ice_dirty_chai"><div class="mi-left"><p class="mi-name">Ice Dirty Chai</p><p class="mi-desc" data-i18n="idc_d">Chai latte con hielo y café</p></div><div class="mi-price"><sup>€</sup>5,00</div></div>
+  <div class="menu-item" data-pid="ice_matcha"><div class="mi-left"><p class="mi-name">Ice Matcha</p><p class="mi-desc" data-i18n="im_d">Matcha latte con hielo</p></div><div class="mi-price"><sup>€</sup>4,20</div></div>
+  <div class="menu-item" data-pid="ice_moca"><div class="mi-left"><p class="mi-name">Ice Moca</p><p class="mi-desc" data-i18n="imo_d">Chocolate frío con café y hielo</p></div><div class="mi-price"><sup>€</sup>5,00</div></div>
+  <div class="menu-item" data-pid="frappe"><div class="mi-left"><p class="mi-name">Frappe</p><p class="mi-desc" data-i18n="fr_d">Café emulsionado · Chocolate, vainilla, caramelo o avellana</p><div class="mi-tags"><span class="tag t-special">Signature</span></div></div><div class="mi-price"><sup>€</sup>5,00</div></div>
+  <div class="menu-item" data-pid="affogato"><div class="mi-left"><p class="mi-name">Affogato al Caffé</p><p class="mi-desc" data-i18n="aff_d">Café con leche o bebidas vegetales y helado</p><div class="mi-tags"><span class="tag t-special">Signature</span></div></div><div class="mi-price"><sup>€</sup>4,50</div></div>
+  <div class="info-note" data-i18n="ext_aroma"><strong>Extra aroma o hielo:</strong> +€0,70 · Chocolate · Vainilla · Caramelo · Avellana</div>
+  <p class="group-label" data-i18n="grp_drinks">Refrescos &amp; Agua</p>
+  <div class="menu-item" data-pid="agua"><div class="mi-left"><p class="mi-name" data-i18n="agua">Agua</p></div><div class="mi-price"><sup>€</sup>1,50</div></div>
+  <div class="menu-item" data-pid="agua_gas"><div class="mi-left"><p class="mi-name" data-i18n="agua_g">Agua con gas</p></div><div class="mi-price"><sup>€</sup>2,00</div></div>
+  <div class="menu-item" data-pid="bebidas_ital"><div class="mi-left"><p class="mi-name" data-i18n="ital_d">Bebidas Italianas Bio</p><p class="mi-desc">Chinotto · Limonata · Arancia Rossa</p></div><div class="mi-price"><sup>€</sup>3,50</div></div>
+  <div class="menu-item" data-pid="kombucha"><div class="mi-left"><p class="mi-name">Kombucha Bio</p><p class="mi-desc">Strawberry &amp; Basil · Lemon · Raspberry · Ginger · Cucumber &amp; Mint</p><div class="mi-tags"><span class="tag t-bio">Bio</span></div></div><div class="mi-price"><sup>€</sup>3,50</div></div>
+  <div class="menu-item" data-pid="refrescos"><div class="mi-left"><p class="mi-name" data-i18n="refrescos">Refrescos</p><p class="mi-desc">Coca-Cola · Coca-Cola Zero · Fanta</p></div><div class="mi-price"><sup>€</sup>2,00</div></div>
+  <div class="menu-item" data-pid="cerveza"><div class="mi-left"><p class="mi-name" data-i18n="cerveza">Cerveza</p></div><div class="mi-price"><sup>€</sup>2,00</div></div>
+</section>
+
+<section class="section" id="zumos">
+  <div class="sec-head"><p class="sec-eyebrow" data-i18n="j_eye">Exprimidos al momento</p><h2 class="sec-title" data-i18n="j_title">Zumos <em>Naturales</em></h2><div class="sec-rule"><span>✦</span></div></div>
+  <div class="menu-item" data-pid="zumo_naranja"><div class="mi-left"><p class="mi-name" data-i18n="j_orange">Zumo de naranja natural</p><p class="mi-desc" data-i18n="j_orange_d">100% naranja exprimida</p></div><div class="mi-price"><sup>€</sup>3,00<span class="sub-price">/ 4,50</span></div></div>
+  <div class="menu-item" data-pid="zumo_pina"><div class="mi-left"><p class="mi-name" data-i18n="j_pina">Zumo de piña / manzana</p></div><div class="mi-price"><sup>€</sup>2,00<span class="sub-price">/ 3,00</span></div></div>
+  <div class="menu-item" data-pid="zumo_granada"><div class="mi-left"><p class="mi-name" data-i18n="j_grana">Zumo de granada natural</p><p class="mi-desc" data-i18n="j_grana_d">100% granada exprimida</p></div><div class="mi-price"><sup>€</sup>4,00</div></div>
+  <div class="menu-item" data-pid="zumo_granajibre"><div class="mi-left"><p class="mi-name">Zumo de Granajibre</p><p class="mi-desc" data-i18n="j_granajibre">Granada · Naranja · Jengibre</p><div class="mi-tags"><span class="tag t-special" data-i18n="tag_house">De la casa</span></div></div><div class="mi-price"><sup>€</sup>4,00</div></div>
+  <div class="info-note" data-i18n="j_sizes">Precios indicados: <strong>Regular / Grande</strong></div>
+</section>
+
+<section class="section" id="granos">
+  <div class="sec-head"><p class="sec-eyebrow" data-i18n="b_eye">Para llevar a casa</p><h2 class="sec-title" data-i18n="b_title">Café en <em>Grano</em></h2><div class="sec-rule"><span>✦</span></div></div>
+  <div class="info-note" data-i18n="b_note">Bolsas de <strong>250g en grano</strong> · También lo molemos para ti · 100% Arábica Natural</div>
+  <div class="bean-card" data-pid="grano_colombia">
+    <div class="bc-header"><p class="bc-origin">Colombia</p><p class="bc-price">€8,00</p></div>
+    <p class="bc-desc" data-i18n="b_col">Café 100% arábica de origen único colombiano. Taza muy aromática con inconfundibles notas florales, suave y de acidez elegante.</p>
+    <div class="bc-scores"><span class="score-pill" data-i18n="sc_ar">Aroma 10</span><span class="score-pill" data-i18n="sc_fl">Sabor 7.5</span><span class="score-pill" data-i18n="sc_ac">Acidez 7.5</span><span class="score-pill" data-i18n="sc_bo">Cuerpo 7.5</span><span class="score-pill" data-i18n="sc_sw">Dulzor 7.5</span><span class="score-pill">Score 81</span></div>
+  </div>
+  <div class="bean-card" data-pid="grano_bgh" style="background:#4A2210">
+    <div class="bc-header"><p class="bc-origin">Brasil · Guatemala · Honduras</p><p class="bc-price">€9,50</p></div>
+    <p class="bc-desc" data-i18n="b_bgh">Blend 50/25/25. Redondo y ligeramente floral — notas de cacao y cardamomo con buen dulzor, acidez y cremosidad notable en cuerpo.</p>
+    <div class="bc-scores"><span class="score-pill">Aroma 8.25</span><span class="score-pill" data-i18n="sc_fl2">Sabor 7.5</span><span class="score-pill" data-i18n="sc_ac2">Acidez 7.5</span><span class="score-pill" data-i18n="sc_sw2">Dulzor 10</span><span class="score-pill">Score 82.75</span></div>
+  </div>
+  <div class="bean-card" data-pid="grano_ebp" style="background:#2A1808">
+    <div class="bc-header"><p class="bc-origin">Etiopía · Brasil · Perú</p><p class="bc-price">€12,00</p></div>
+    <p class="bc-desc" data-i18n="b_ebp">Blend 40/35/25. Gran personalidad. Etiopía aporta armonía entre notas florales y cítricas — acidez deliciosa que se torna dulce y afrutada en el retrogusto.</p>
+    <div class="bc-scores"><span class="score-pill" data-i18n="sc_bo2">Cuerpo medio</span><span class="score-pill" data-i18n="sc_flo">Floral</span><span class="score-pill" data-i18n="sc_ci">Cítrico</span><span class="score-pill" data-i18n="sc_fr">Afrutado</span></div>
+  </div>
+  <div class="bean-card" data-pid="grano_decaf" style="background:#383838">
+    <div class="bc-header"><p class="bc-origin" data-i18n="b_dc_o">Blend Descafeinado</p><p class="bc-price">€8,00</p></div>
+    <p class="bc-desc" data-i18n="b_dc">75% arábica + 25% robusta descafeinado. Orígenes: Brasil, Honduras, Colombia y Vietnam. Taza equilibrada, suave, acidez media, aroma intenso.</p>
+    <div class="bc-scores"><span class="score-pill" data-i18n="sc_noc">Sin cafeína</span><span class="score-pill" data-i18n="sc_sm">Suave</span><span class="score-pill" data-i18n="sc_ba">Equilibrado</span></div>
+  </div>
+</section>
+
+<footer>
+  <p><strong>I Need Coffee Granada</strong></p>
+  <p>Plaza del Realejo 5 · Granada</p>
+  <p style="margin-top:16px;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid rgba(240,184,84,.25);padding:8px 18px;border-radius:100px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold-hi);letter-spacing:.1em"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 8.5a13 13 0 0 1 21 0M5 12a10 10 0 0 1 14 0M8.5 15.5a6 6 0 0 1 7 0M12 19h.01"/></svg><span data-i18n="wifi">WiFi: cappuccino</span></p>
+  <p style="margin-top:20px;font-size:11px;letter-spacing:.14em;color:rgba(250,243,232,0.75)" data-i18n="credit">Hecho con código y amor por <strong style="color:var(--gold-hi);font-weight:700">Julian Dimian</strong></p>
+</footer>
+
+<script>
+var T = {
+  es: {
+    sub:"100% Artesanal · Granada, España",wifi:"WiFi: cappuccino",
+    tab_food:"🥐 Comida",tab_smoothies:"🍹 Batidos",tab_coffees:"☕ Cafés",tab_cold:"🧊 Fríos",tab_juices:"🍊 Zumos",tab_beans:"✦ Grano",
+    food_eyebrow:"Desayunos & Brunch",food_title:"La <em>Carta</em>",
+    grp_bowls:"Para Comer",yogurt_desc:"Frutas de temporada, coco, muesli",
+    toast_h:"Extra ingrediente +€0,70 · Extra especial +€0,90",
+    toast_f:"Extra ingrediente +€0,70 · Extra especial +€0,90",
+    croissant_d:"Extra ingrediente +€0,70 · Extra especial +€0,90",
+    boc_name:"Bocadillo <em>(Sandwich)</em> <em>· Incluye 2 ingredientes</em>",boc_desc:"Extra +€0,70 · Extra especial +€0,90",
+    bagel_name:"Bagel <em>· Incluye 2 ingredientes</em>",bagel_d:"Extra +€0,70 · Extra especial +€0,90",
+    grp_rolls:"Rolls & Bollería",roll_t:"Roll casero de pavo y queso",
+    roll_g:"Pavo, queso, tomate, aguacate, mostaza",
+    tag_v:"Vegano",tag_v2:"Vegano",tag_gf:"Sin Gluten",tag_gf2:"Sin Gluten",
+    bizco_name:"Bizcocho vegano <em>casero</em>",bizco_desc:"Banana bread · Carrot cake · Pumpkin chocolate",
+    cinn_name:"Cinnamon Roll vegano <em>casero</em>",muffin_n:"Muffin choco",sfog_d:"Pastelería italiana artesanal",
+    grp_extras:"Extras para Toasts, Bocadillos & Bagels",
+    ext_t:"Ingrediente",ext_st:"Ingrediente Especial",
+    ext_list:"Tomate · Mantequilla · Queso fundido · Pavo · Mermelada fresa o melocotón · Mix semillas · Ensalada · Jamón ibérico · Mayonesa · Paté ibérico",
+    ext_slist:"Philadelphia · Salmón · Aguacate · Atún · Huevo cocido · Pesto · Tomate seco · Hummus casero · Pimientos rojos · Aceitunas negras · Mostaza · Nueces · Miel · Nutella · Crema de pistacho",
+    sm_eye:"Frutas & Naturaleza",sm_title:"Batidos <em>Naturales</em>",
+    sm_base:"<strong>Base a elegir:</strong> Zumo de piña/manzana · Agua · Leche · Bebidas vegetales",
+    s01:"Piña, papaya, mango",s02:"Fresa, melocotón, papaya",s03:"Fresa, plátano",
+    s04:"Pera, mango",s05:"Manzana, frambuesa, arándano, mango",s06:"Mango, fresa, arándano, açai",
+    s08:"Piña, coco",s09:"Kale, mango, plátano, limón",s10:"Zanahoria, piña, papaya, goji, kiwi",s11:"Remolacha, jengibre, arándanos, piña",
+    cof_eye:"100% Arábica Natural",cof_title:"<em>Para</em> Beber",
+    th_drink:"Bebida",th_reg:"Regular",th_large:"Grande",
+    d_milk:"Con leche",d_cortado:"(Cortado)",d_fw:"(doble carga)",d_choc:"Chocolate",d_dc:"(hielo+café)",
+    d_tea:"Tea / Infusión",d_team:"Tea / Infusión con leche",
+    grp_teas:"Variedades de Té",tea_bl:"Black Tea",tea_rd:"Red Tea",tea_gr:"Green Tea",
+    tea_gr_f:"Gunpowder · Amaretto · Menthos · Noche de Toronto · Jengibre y Limón",
+    tea_hr:"Infusiones",tea_hr_f:"Manzanilla · Rooibos · Sierra Nevada · Honeybush",
+    cold_eye:"Refrescantes & Especiales",cold_title:"Bebidas <em>Frías</em>",grp_iced:"Cafés con Hielo",
+    ic_d:"Café con hielo",il_d:"Café con leche o bebidas vegetales y hielo",ia_d:"Café americano con hielo",
+    icl_d:"Chai latte con hielo",idc_d:"Chai latte con hielo y café",im_d:"Matcha latte con hielo",
+    imo_d:"Chocolate frío con café y hielo",fr_d:"Café emulsionado · Chocolate, vainilla, caramelo o avellana",
+    aff_d:"Café con leche o bebidas vegetales y helado",
+    ext_aroma:"<strong>Extra aroma o hielo:</strong> +€0,70 · Chocolate · Vainilla · Caramelo · Avellana",
+    grp_drinks:"Refrescos & Agua",agua:"Agua",agua_g:"Agua con gas",ital_d:"Bebidas Italianas Bio",
+    refrescos:"Refrescos",cerveza:"Cerveza",
+    j_eye:"Exprimidos al momento",j_title:"Zumos <em>Naturales</em>",
+    j_orange:"Zumo de naranja natural",j_orange_d:"100% naranja exprimida",
+    j_pina:"Zumo de piña / manzana",j_grana:"Zumo de granada natural",j_grana_d:"100% granada exprimida",
+    j_granajibre:"Granada · Naranja · Jengibre",tag_house:"De la casa",
+    j_sizes:"Precios indicados: <strong>Regular / Grande</strong>",
+    b_eye:"Para llevar a casa",b_title:"Café en <em>Grano</em>",
+    b_note:"Bolsas de <strong>250g en grano</strong> · También lo molemos para ti · 100% Arábica Natural",
+    b_col:"Café 100% arábica de origen único colombiano. Taza muy aromática con inconfundibles notas florales, suave y de acidez elegante.",
+    b_bgh:"Blend 50/25/25. Redondo y ligeramente floral — notas de cacao y cardamomo con buen dulzor, acidez y cremosidad notable en cuerpo.",
+    b_ebp:"Blend 40/35/25. Gran personalidad. Etiopía aporta armonía entre notas florales y cítricas — acidez deliciosa que se torna dulce y afrutada en el retrogusto.",
+    b_dc_o:"Blend Descafeinado",b_dc:"75% arábica + 25% robusta descafeinado. Orígenes: Brasil, Honduras, Colombia y Vietnam. Taza equilibrada, suave, acidez media, aroma intenso.",
+    sc_ar:"Aroma 10",sc_fl:"Sabor 7.5",sc_ac:"Acidez 7.5",sc_bo:"Cuerpo 7.5",sc_sw:"Dulzor 7.5",
+    sc_fl2:"Sabor 7.5",sc_ac2:"Acidez 7.5",sc_sw2:"Dulzor 10",
+    sc_bo2:"Cuerpo medio",sc_flo:"Floral",sc_ci:"Cítrico",sc_fr:"Afrutado",
+    sc_noc:"Sin cafeína",sc_sm:"Suave",sc_ba:"Equilibrado",
+    credit:"Hecho con código y amor por <strong style='color:var(--gold-hi);font-weight:700'>Julian Dimian</strong>"
+  },
+  en: {
+    sub:"100% Artisan · Granada, Spain",wifi:"WiFi: cappuccino",
+    tab_food:"🥐 Food",tab_smoothies:"🍹 Smoothies",tab_coffees:"☕ Coffees",tab_cold:"🧊 Cold",tab_juices:"🍊 Juices",tab_beans:"✦ Beans",
+    food_eyebrow:"Breakfast & Brunch",food_title:"The <em>Menu</em>",
+    grp_bowls:"To Eat",yogurt_desc:"Seasonal fruits, coconut, muesli",
+    toast_h:"Extra topping +€0.70 · Special extra +€0.90",
+    toast_f:"Extra topping +€0.70 · Special extra +€0.90",
+    croissant_d:"Extra topping +€0.70 · Special extra +€0.90",
+    boc_name:"Sandwich <em>· Includes 2 toppings</em>",boc_desc:"Extra +€0.70 · Special extra +€0.90",
+    bagel_name:"Bagel <em>· Includes 2 toppings</em>",bagel_d:"Extra +€0.70 · Special extra +€0.90",
+    grp_rolls:"Rolls & Pastries",roll_t:"Homemade turkey & cheese roll",
+    roll_g:"Turkey, cheese, tomato, avocado, mustard",
+    tag_v:"Vegan",tag_v2:"Vegan",tag_gf:"Gluten Free",tag_gf2:"Gluten Free",
+    bizco_name:"Homemade vegan <em>cake</em>",bizco_desc:"Banana bread · Carrot cake · Pumpkin chocolate",
+    cinn_name:"Homemade vegan <em>cinnamon roll</em>",muffin_n:"Choco muffin",sfog_d:"Artisan Italian pastry",
+    grp_extras:"Extras for Toasts, Sandwiches & Bagels",
+    ext_t:"Topping",ext_st:"Special Topping",
+    ext_list:"Tomato · Butter · Melted cheese · Turkey · Strawberry or peach jam · Seed mix · Salad · Iberian ham · Mayonnaise · Iberian pâté",
+    ext_slist:"Philadelphia · Salmon · Avocado · Tuna · Hard boiled egg · Pesto · Sun-dried tomato · Homemade hummus · Red peppers · Black olives · Mustard · Walnuts · Honey · Nutella · Pistachio cream",
+    sm_eye:"Fruits & Nature",sm_title:"Natural <em>Smoothies</em>",
+    sm_base:"<strong>Choose your base:</strong> Pineapple/apple juice · Water · Milk · Plant-based drinks",
+    s01:"Pineapple, papaya, mango",s02:"Strawberry, peach, papaya",s03:"Strawberry, banana",
+    s04:"Pear, mango",s05:"Apple, raspberry, blueberry, mango",s06:"Mango, strawberry, blueberry, açai",
+    s08:"Pineapple, coconut",s09:"Kale, mango, banana, lemon",s10:"Carrot, pineapple, papaya, goji, kiwi",s11:"Beetroot, ginger, blueberries, pineapple",
+    cof_eye:"100% Natural Arabica",cof_title:"<em>To</em> Drink",
+    th_drink:"Drink",th_reg:"Regular",th_large:"Large",
+    d_milk:"White coffee",d_cortado:"(Cortado)",d_fw:"(double shot)",d_choc:"Hot chocolate",d_dc:"(iced+coffee)",
+    d_tea:"Tea / Herbal",d_team:"Tea / Herbal with milk",
+    grp_teas:"Tea Varieties",tea_bl:"Black Tea",tea_rd:"Red Tea",tea_gr:"Green Tea",
+    tea_gr_f:"Gunpowder · Amaretto · Menthos · Toronto Night · Ginger & Lemon",
+    tea_hr:"Herbal infusions",tea_hr_f:"Chamomile · Rooibos · Sierra Nevada · Honeybush",
+    cold_eye:"Refreshing & Special",cold_title:"Cold <em>Drinks</em>",grp_iced:"Iced Coffees",
+    ic_d:"Coffee over ice",il_d:"Coffee with milk or plant drink and ice",ia_d:"Americano over ice",
+    icl_d:"Chai latte over ice",idc_d:"Chai latte with ice and coffee",im_d:"Matcha latte over ice",
+    imo_d:"Cold chocolate with coffee and ice",fr_d:"Emulsified coffee · Chocolate, vanilla, caramel or hazelnut",
+    aff_d:"Coffee with milk or plant drink and ice cream",
+    ext_aroma:"<strong>Extra flavour or ice:</strong> +€0.70 · Chocolate · Vanilla · Caramel · Hazelnut",
+    grp_drinks:"Soft Drinks & Water",agua:"Still water",agua_g:"Sparkling water",ital_d:"Bio Italian drinks",
+    refrescos:"Soft drinks",cerveza:"Beer",
+    j_eye:"Freshly squeezed",j_title:"Natural <em>Juices</em>",
+    j_orange:"Natural orange juice",j_orange_d:"100% freshly squeezed oranges",
+    j_pina:"Pineapple / apple juice",j_grana:"Natural pomegranate juice",j_grana_d:"100% freshly squeezed",
+    j_granajibre:"Pomegranate · Orange · Ginger",tag_house:"House special",
+    j_sizes:"Prices shown: <strong>Regular / Large</strong>",
+    b_eye:"Take home",b_title:"Coffee <em>Beans</em>",
+    b_note:"<strong>250g whole bean bags</strong> · We can grind it for you · 100% Natural Arabica",
+    b_col:"100% single-origin Colombian arabica. Very aromatic cup with unmistakable floral notes, smooth with elegant acidity.",
+    b_bgh:"Blend 50/25/25. Round and lightly floral — cocoa and cardamom notes with good sweetness, acidity and notable creaminess.",
+    b_ebp:"Blend 40/35/25. Bold personality. Ethiopia brings harmony between floral and citrus notes — delicious acidity that turns sweet and fruity in the finish.",
+    b_dc_o:"Decaf Blend",b_dc:"75% arabica + 25% decaf robusta. Origins: Brazil, Honduras, Colombia and Vietnam. Balanced, smooth, medium acidity, intense aroma.",
+    sc_ar:"Aroma 10",sc_fl:"Flavour 7.5",sc_ac:"Acidity 7.5",sc_bo:"Body 7.5",sc_sw:"Sweetness 7.5",
+    sc_fl2:"Flavour 7.5",sc_ac2:"Acidity 7.5",sc_sw2:"Sweetness 10",
+    sc_bo2:"Medium body",sc_flo:"Floral",sc_ci:"Citrus",sc_fr:"Fruity",
+    sc_noc:"Caffeine-free",sc_sm:"Smooth",sc_ba:"Balanced",
+    credit:"Made with code and love by <strong style='color:var(--gold-hi);font-weight:700'>Julian Dimian</strong>"
+  },
+  it: {
+    sub:"100% Artigianale · Granada, Spagna",wifi:"WiFi: cappuccino",
+    tab_food:"🥐 Cibo",tab_smoothies:"🍹 Frullati",tab_coffees:"☕ Caffè",tab_cold:"🧊 Fredde",tab_juices:"🍊 Succhi",tab_beans:"✦ Grani",
+    food_eyebrow:"Colazione & Brunch",food_title:"Il <em>Menù</em>",
+    grp_bowls:"Da Mangiare",yogurt_desc:"Frutta di stagione, cocco, muesli",
+    toast_h:"Ingrediente extra +€0,70 · Extra speciale +€0,90",
+    toast_f:"Ingrediente extra +€0,70 · Extra speciale +€0,90",
+    croissant_d:"Ingrediente extra +€0,70 · Extra speciale +€0,90",
+    boc_name:"Panino <em>(Sandwich)</em> <em>· Include 2 ingredienti</em>",boc_desc:"Extra +€0,70 · Extra speciale +€0,90",
+    bagel_name:"Bagel <em>· Include 2 ingredienti</em>",bagel_d:"Extra +€0,70 · Extra speciale +€0,90",
+    grp_rolls:"Roll & Prodotti da Forno",roll_t:"Roll artigianale tacchino e formaggio",
+    roll_g:"Tacchino, formaggio, pomodoro, avocado, senape",
+    tag_v:"Vegano",tag_v2:"Vegano",tag_gf:"Senza Glutine",tag_gf2:"Senza Glutine",
+    bizco_name:"Torta vegana <em>artigianale</em>",bizco_desc:"Banana bread · Carrot cake · Pumpkin chocolate",
+    cinn_name:"Cinnamon Roll vegano <em>artigianale</em>",muffin_n:"Muffin al cioccolato",sfog_d:"Pasticceria italiana artigianale",
+    grp_extras:"Extra per Toast, Panini & Bagel",
+    ext_t:"Ingrediente",ext_st:"Ingrediente Speciale",
+    ext_list:"Pomodoro · Burro · Formaggio fuso · Tacchino · Marmellata fragola o pesca · Mix semi · Insalata · Prosciutto iberico · Maionese · Paté iberico",
+    ext_slist:"Philadelphia · Salmone · Avocado · Tonno · Uovo sodo · Pesto · Pomodoro secco · Hummus artigianale · Peperoni rossi · Olive nere · Senape · Noci · Miele · Nutella · Crema di pistacchio",
+    sm_eye:"Frutta & Natura",sm_title:"Frullati <em>Naturali</em>",
+    sm_base:"<strong>Scegli la base:</strong> Succo ananas/mela · Acqua · Latte · Bevande vegetali",
+    s01:"Ananas, papaya, mango",s02:"Fragola, pesca, papaya",s03:"Fragola, banana",
+    s04:"Pera, mango",s05:"Mela, lampone, mirtillo, mango",s06:"Mango, fragola, mirtillo, açai",
+    s08:"Ananas, cocco",s09:"Kale, mango, banana, limone",s10:"Carota, ananas, papaya, goji, kiwi",s11:"Barbabietola, zenzero, mirtilli, ananas",
+    cof_eye:"100% Arabica Naturale",cof_title:"<em>Da</em> Bere",
+    th_drink:"Bevanda",th_reg:"Piccolo",th_large:"Grande",
+    d_milk:"Caffè macchiato lungo",d_cortado:"(Cortado)",d_fw:"(doppio)",d_choc:"Cioccolata calda",d_dc:"(ghiaccio+caffè)",
+    d_tea:"Tè / Infuso",d_team:"Tè / Infuso con latte",
+    grp_teas:"Varietà di Tè",tea_bl:"Tè Nero",tea_rd:"Tè Rosso",tea_gr:"Tè Verde",
+    tea_gr_f:"Gunpowder · Amaretto · Menthos · Notte di Toronto · Zenzero e Limone",
+    tea_hr:"Infusi",tea_hr_f:"Camomilla · Rooibos · Sierra Nevada · Honeybush",
+    cold_eye:"Rinfrescanti & Speciali",cold_title:"Bevande <em>Fredde</em>",grp_iced:"Caffè Freddo",
+    ic_d:"Caffè con ghiaccio",il_d:"Caffè con latte o bevande vegetali e ghiaccio",ia_d:"Americano con ghiaccio",
+    icl_d:"Chai latte con ghiaccio",idc_d:"Chai latte con ghiaccio e caffè",im_d:"Matcha latte con ghiaccio",
+    imo_d:"Cioccolata fredda con caffè e ghiaccio",fr_d:"Caffè emulsionato · Cioccolato, vaniglia, caramello o nocciola",
+    aff_d:"Caffè con latte o bevande vegetali e gelato",
+    ext_aroma:"<strong>Aroma extra o ghiaccio:</strong> +€0,70 · Cioccolato · Vaniglia · Caramello · Nocciola",
+    grp_drinks:"Bibite & Acqua",agua:"Acqua naturale",agua_g:"Acqua frizzante",ital_d:"Bevande Italiane Bio",
+    refrescos:"Bibite",cerveza:"Birra",
+    j_eye:"Spremuti al momento",j_title:"Succhi <em>Naturali</em>",
+    j_orange:"Succo d'arancia naturale",j_orange_d:"100% arancia spremuta",
+    j_pina:"Succo ananas / mela",j_grana:"Succo di melagrana naturale",j_grana_d:"100% melagrana spremuta",
+    j_granajibre:"Melagrana · Arancia · Zenzero",tag_house:"Specialità della casa",
+    j_sizes:"Prezzi indicati: <strong>Piccolo / Grande</strong>",
+    b_eye:"Da portare a casa",b_title:"Caffè in <em>Grani</em>",
+    b_note:"Sacchetti da <strong>250g in grani</strong> · Possiamo macinarlo per te · 100% Arabica Naturale",
+    b_col:"Caffè 100% arabica di singola origine colombiana. Tazza molto aromatica con inconfondibili note floreali, morbida e di acidità elegante.",
+    b_bgh:"Blend 50/25/25. Rotondo e leggermente floreale — note di cacao e cardamomo con buona dolcezza, acidità e cremosità notevole.",
+    b_ebp:"Blend 40/35/25. Grande personalità. L'Etiopia porta armonia tra note floreali e agrumate — acidità deliziosa che diventa dolce e fruttata nel retrogusto.",
+    b_dc_o:"Blend Decaffeinato",b_dc:"75% arabica + 25% robusta decaffeinato. Origini: Brasile, Honduras, Colombia e Vietnam. Tazza equilibrata, morbida, acidità media, aroma intenso.",
+    sc_ar:"Aroma 10",sc_fl:"Sapore 7.5",sc_ac:"Acidità 7.5",sc_bo:"Corpo 7.5",sc_sw:"Dolcezza 7.5",
+    sc_fl2:"Sapore 7.5",sc_ac2:"Acidità 7.5",sc_sw2:"Dolcezza 10",
+    sc_bo2:"Corpo medio",sc_flo:"Floreale",sc_ci:"Agrumato",sc_fr:"Fruttato",
+    sc_noc:"Senza caffeina",sc_sm:"Morbido",sc_ba:"Equilibrato",
+    credit:"Fatto con codice e amore da <strong style='color:var(--gold-hi);font-weight:700'>Julian Dimian</strong>"
+  },
+  fr: {
+    sub:"100% Artisanal · Grenade, Espagne",wifi:"WiFi: cappuccino",
+    tab_food:"🥐 Nourriture",tab_smoothies:"🍹 Smoothies",tab_coffees:"☕ Cafés",tab_cold:"🧊 Froides",tab_juices:"🍊 Jus",tab_beans:"✦ Grains",
+    food_eyebrow:"Petit-déjeuner & Brunch",food_title:"La <em>Carte</em>",
+    grp_bowls:"À Manger",yogurt_desc:"Fruits de saison, noix de coco, muesli",
+    toast_h:"Ingrédient sup. +€0,70 · Extra spécial +€0,90",
+    toast_f:"Ingrédient sup. +€0,70 · Extra spécial +€0,90",
+    croissant_d:"Ingrédient sup. +€0,70 · Extra spécial +€0,90",
+    boc_name:"Sandwich <em>· 2 ingrédients inclus</em>",boc_desc:"Extra +€0,70 · Extra spécial +€0,90",
+    bagel_name:"Bagel <em>· 2 ingrédients inclus</em>",bagel_d:"Extra +€0,70 · Extra spécial +€0,90",
+    grp_rolls:"Rolls & Viennoiseries",roll_t:"Roll maison dinde et fromage",
+    roll_g:"Dinde, fromage, tomate, avocat, moutarde",
+    tag_v:"Végétalien",tag_v2:"Végétalien",tag_gf:"Sans Gluten",tag_gf2:"Sans Gluten",
+    bizco_name:"Gâteau végétalien <em>maison</em>",bizco_desc:"Banana bread · Carrot cake · Pumpkin chocolate",
+    cinn_name:"Cinnamon Roll végétalien <em>maison</em>",muffin_n:"Muffin au chocolat",sfog_d:"Pâtisserie italienne artisanale",
+    grp_extras:"Extras pour Toasts, Sandwichs & Bagels",
+    ext_t:"Ingrédient",ext_st:"Ingrédient Spécial",
+    ext_list:"Tomate · Beurre · Fromage fondu · Dinde · Confiture fraise ou pêche · Mélange de graines · Salade · Jambon ibérique · Mayonnaise · Pâté ibérique",
+    ext_slist:"Philadelphia · Saumon · Avocat · Thon · Oeuf dur · Pesto · Tomate séchée · Houmous maison · Poivrons rouges · Olives noires · Moutarde · Noix · Miel · Nutella · Crème de pistache",
+    sm_eye:"Fruits & Nature",sm_title:"Smoothies <em>Naturels</em>",
+    sm_base:"<strong>Choisissez votre base:</strong> Jus ananas/pomme · Eau · Lait · Boissons végétales",
+    s01:"Ananas, papaye, mangue",s02:"Fraise, pêche, papaye",s03:"Fraise, banane",
+    s04:"Poire, mangue",s05:"Pomme, framboise, myrtille, mangue",s06:"Mangue, fraise, myrtille, açai",
+    s08:"Ananas, noix de coco",s09:"Kale, mangue, banane, citron",s10:"Carotte, ananas, papaye, goji, kiwi",s11:"Betterave, gingembre, myrtilles, ananas",
+    cof_eye:"100% Arabica Naturel",cof_title:"<em>À</em> Boire",
+    th_drink:"Boisson",th_reg:"Petit",th_large:"Grand",
+    d_milk:"Café au lait",d_cortado:"(Serré)",d_fw:"(double dose)",d_choc:"Chocolat chaud",d_dc:"(glacé+café)",
+    d_tea:"Thé / Infusion",d_team:"Thé / Infusion au lait",
+    grp_teas:"Variétés de Thé",tea_bl:"Thé Noir",tea_rd:"Thé Rouge",tea_gr:"Thé Vert",
+    tea_gr_f:"Gunpowder · Amaretto · Menthos · Nuit de Toronto · Gingembre et Citron",
+    tea_hr:"Infusions",tea_hr_f:"Camomille · Rooibos · Sierra Nevada · Honeybush",
+    cold_eye:"Rafraîchissantes & Spéciales",cold_title:"Boissons <em>Froides</em>",grp_iced:"Cafés Glacés",
+    ic_d:"Café sur glace",il_d:"Café avec lait ou boisson végétale et glace",ia_d:"Americano sur glace",
+    icl_d:"Chai latte sur glace",idc_d:"Chai latte avec glace et café",im_d:"Matcha latte sur glace",
+    imo_d:"Chocolat froid avec café et glace",fr_d:"Café émulsionné · Chocolat, vanille, caramel ou noisette",
+    aff_d:"Café avec lait ou boisson végétale et glace à la crème",
+    ext_aroma:"<strong>Arôme ou glace en plus:</strong> +€0,70 · Chocolat · Vanille · Caramel · Noisette",
+    grp_drinks:"Sodas & Eau",agua:"Eau plate",agua_g:"Eau gazeuse",ital_d:"Boissons Italiennes Bio",
+    refrescos:"Sodas",cerveza:"Bière",
+    j_eye:"Pressés à la minute",j_title:"Jus <em>Naturels</em>",
+    j_orange:"Jus d'orange naturel",j_orange_d:"100% oranges pressées",
+    j_pina:"Jus ananas / pomme",j_grana:"Jus de grenade naturel",j_grana_d:"100% grenade pressée",
+    j_granajibre:"Grenade · Orange · Gingembre",tag_house:"Spécialité maison",
+    j_sizes:"Prix indiqués: <strong>Petit / Grand</strong>",
+    b_eye:"À emporter",b_title:"Café en <em>Grains</em>",
+    b_note:"Sachets de <strong>250g en grains</strong> · Nous pouvons le moudre · 100% Arabica Naturel",
+    b_col:"Café 100% arabica d'origine unique colombienne. Tasse très aromatique avec des notes florales inconfondables, douce et d'une acidité élégante.",
+    b_bgh:"Blend 50/25/25. Rond et légèrement floral — notes de cacao et cardamome avec bonne douceur, acidité et crémosité remarquable.",
+    b_ebp:"Blend 40/35/25. Grande personnalité. L'Éthiopie apporte harmonie entre notes florales et citriques — acidité délicieuse qui devient douce et fruitée en finale.",
+    b_dc_o:"Blend Décaféiné",b_dc:"75% arabica + 25% robusta décaféiné. Origines: Brésil, Honduras, Colombie et Vietnam. Tasse équilibrée, douce, acidité moyenne, arôme intense.",
+    sc_ar:"Arôme 10",sc_fl:"Goût 7.5",sc_ac:"Acidité 7.5",sc_bo:"Corps 7.5",sc_sw:"Douceur 7.5",
+    sc_fl2:"Goût 7.5",sc_ac2:"Acidité 7.5",sc_sw2:"Douceur 10",
+    sc_bo2:"Corps moyen",sc_flo:"Floral",sc_ci:"Agrumes",sc_fr:"Fruité",
+    sc_noc:"Sans caféine",sc_sm:"Doux",sc_ba:"Équilibré",
+    credit:"Fait avec code et amour par <strong style='color:var(--gold-hi);font-weight:700'>Julian Dimian</strong>"
+  }
+};
+
+function setLang(lang, btn) {
+  document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  var t = T[lang];
+  if (!t) return;
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.innerHTML = t[key];
+  });
+  document.documentElement.lang = lang;
+}
+
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+<script>
+// ── SINCRONIZACIÓN CON JSONBIN ──────────────────────────────────
+// INSTRUCCIONES: reemplaza los dos valores de abajo con los tuyos de jsonbin.io
+var INC_BIN_ID  = '69c271aec3097a1dd5555fad';   // ← ej: 67a8b2c3d4e5f6a7b8c9d0e1
+var INC_API_KEY = '$2a$10$OF/aphLfABPvb.xCzP7sxeubM//Uad97gTOm2i2sx7U01hYs89xKK';  // ← Master Key de jsonbin.io
+
+(function syncFromAdmin() {
+  if (INC_BIN_ID === 'TU_BIN_ID_AQUI' || INC_API_KEY === 'TU_API_KEY_AQUI') return;
+  fetch('https://api.jsonbin.io/v3/b/' + INC_BIN_ID + '/latest', {
+    headers: { 'X-Master-Key': INC_API_KEY, 'X-Bin-Meta': 'false' }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    applyPatches(data.patches || {});
+    applyExtras(data.extras || []);
+  })
+  .catch(function() {/* sin internet: muestra defaults */});
+
+  function applyPatches(patches) {
+    Object.keys(patches).forEach(function(pid) {
+      var el = document.querySelector('[data-pid="' + pid + '"]');
+      if (!el) return;
+      var p = patches[pid];
+
+      // ── Batido (sm-card) ──
+      if (el.classList.contains('sm-card')) {
+        if (p.name) { var sn = el.querySelector('.sm-name'); if(sn) sn.textContent = p.name; }
+        if (p.ing !== undefined) { var si = el.querySelector('.sm-ing'); if(si) si.textContent = p.ing; }
+        if (p.price) { var sp = el.querySelector('.sm-price'); if(sp) sp.textContent = '€' + p.price; }
+        if (p.unavail !== undefined) el.classList.toggle('sm-unavail', !!p.unavail);
+        return;
+      }
+
+      // ── Bean card ──
+      if (el.classList.contains('bean-card')) {
+        if (p.origin) { var bo = el.querySelector('.bc-origin'); if(bo) bo.textContent = p.origin; }
+        if (p.price)  { var bp = el.querySelector('.bc-price');  if(bp) bp.textContent = '€' + p.price; }
+        if (p.desc)   { var bd = el.querySelector('.bc-desc');   if(bd) bd.textContent = p.desc; }
+        if (p.scores) {
+          var bs = el.querySelector('.bc-scores');
+          if (bs) bs.innerHTML = p.scores.split('|').map(function(s) {
+            return '<span class="score-pill">' + s.trim() + '</span>';
+          }).join('');
+        }
+        return;
+      }
+
+      // ── Café table row ──
+      if (el.tagName === 'TR') {
+        var tds = el.querySelectorAll('td');
+        if (!tds.length) return;
+        if (p.name) {
+          var noteSpan = tds[0].querySelector('.dt-note');
+          tds[0].textContent = p.name;
+          if (p.note && p.note.trim()) {
+            var ns = document.createElement('span');
+            ns.className = 'dt-note'; ns.textContent = ' ' + p.note;
+            tds[0].appendChild(ns);
+          }
+        }
+        var fmt = function(v) { return v ? '€' + v : '—'; };
+        var nd  = function(v) { return !v; };
+        if (tds[1]) { tds[1].textContent = fmt(p.reg); tds[1].className = nd(p.reg)?'nd':''; }
+        if (tds[2]) { tds[2].textContent = fmt(p.med); tds[2].className = nd(p.med)?'nd':''; }
+        if (tds[3]) { tds[3].textContent = fmt(p.xl);  tds[3].className = nd(p.xl)?'nd':'';  }
+        return;
+      }
+
+      // ── Zumo (dual price menu-item) ──
+      if (el.classList.contains('menu-item')) {
+        if (p.name) { var mn = el.querySelector('.mi-name'); if(mn) mn.textContent = p.name; }
+        if (p.desc !== undefined) { var md = el.querySelector('.mi-desc'); if(md) md.textContent = p.desc; }
+        var mp = el.querySelector('.mi-price');
+        if (mp) {
+          var priceVal = p.price || p.price2 ? (p.price || '') : null;
+          if (priceVal !== null) {
+            mp.innerHTML = '<sup>€</sup>' + (p.price||'');
+            if (p.price2) mp.innerHTML += '<span class="sub-price">/ ' + p.price2 + '</span>';
+          }
+        }
+      }
+    });
+  }
+
+  function applyExtras(extras) {
+    extras.forEach(function(ex) {
+      if (!ex || !ex.id || !ex.section) return;
+      // Evitar duplicados
+      if (document.querySelector('[data-pid="' + ex.id + '"]')) return;
+
+      var html = '';
+      if (ex.section === 'batidos') {
+        html = '<div class="sm-card' + (ex.unavail?' sm-unavail':'') + '" data-pid="'+ex.id+'">' +
+          '<p class="sm-num">'+(ex.num||'')+'</p>' +
+          '<p class="sm-name">'+(ex.name||'')+'</p>' +
+          (ex.ing?'<p class="sm-ing">'+ex.ing+'</p>':'')+
+          '<p class="sm-price">€'+(ex.price||'')+'</p></div>';
+        var grid = document.querySelector('#batidos .smoothies-grid');
+        if (grid) grid.insertAdjacentHTML('beforeend', html);
+      } else if (ex.section === 'cafes') {
+        var fmt2 = function(v){return v?'€'+v:'—';};
+        html = '<tr data-pid="'+ex.id+'">' +
+          '<td>' + (ex.name||'') + (ex.note?' <span class="dt-note">'+ex.note+'</span>':'') + '</td>' +
+          '<td class="'+(ex.reg?'':'nd')+'" data-label="Reg">'+fmt2(ex.reg)+'</td>' +
+          '<td class="'+(ex.med?'':'nd')+'" data-label="Gr">'+fmt2(ex.med)+'</td>' +
+          '<td class="'+(ex.xl?'':'nd')+'" data-label="XL">'+fmt2(ex.xl)+'</td></tr>';
+        var tbody = document.querySelector('#cafes .drinks-table tbody');
+        if (tbody) tbody.insertAdjacentHTML('beforeend', html);
+      } else if (ex.section === 'granos') {
+        html = '<div class="bean-card" data-pid="'+ex.id+'">' +
+          '<div class="bc-header"><p class="bc-origin">'+(ex.origin||'')+'</p><p class="bc-price">€'+(ex.price||'')+'</p></div>' +
+          '<p class="bc-desc">'+(ex.desc||'')+'</p>' +
+          '<div class="bc-scores">'+(ex.scores||'').split('|').map(function(s){return '<span class="score-pill">'+s.trim()+'</span>';}).join('')+'</div></div>';
+        var grSec = document.getElementById('granos');
+        var lastBean = grSec ? grSec.querySelector('.bean-card:last-of-type') : null;
+        if (lastBean) lastBean.insertAdjacentHTML('afterend', html);
+        else if (grSec) grSec.insertAdjacentHTML('beforeend', html);
+      } else {
+        // Comida, fríos, zumos
+        var priceHtml = '<sup>€</sup>'+(ex.price||'');
+        if (ex.price2) priceHtml += '<span class="sub-price">/ '+ex.price2+'</span>';
+        html = '<div class="menu-item" data-pid="'+ex.id+'">' +
+          '<div class="mi-left"><p class="mi-name">'+(ex.name||'')+'</p>' +
+          (ex.desc?'<p class="mi-desc">'+ex.desc+'</p>':'')+
+          '</div><div class="mi-price">'+priceHtml+'</div></div>';
+        var sec = document.getElementById(ex.section);
+        if (sec) {
+          var lastItem = sec.querySelector('.menu-item:last-of-type');
+          if (lastItem) lastItem.insertAdjacentHTML('afterend', html);
+          else sec.insertAdjacentHTML('beforeend', html);
+        }
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
