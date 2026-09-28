@@ -574,6 +574,14 @@ var INC_API_KEY = '$2a$10$OF/aphLfABPvb.xCzP7sxeubM//Uad97gTOm2i2sx7U01hYs89xKK'
         return;
       }
 
+// ── Ingrediente card ──
+      if (el.classList.contains('extras-card')) {
+        if (p.title) { var et = el.querySelector('.ec-title'); if(et) et.textContent = p.title; }
+        if (p.price) { var ep = el.querySelector('.ec-price'); if(ep) ep.textContent = '€' + p.price; }
+        if (p.list)  { var el2 = el.querySelector('.ec-list'); if(el2) el2.textContent = p.list; }
+        return;
+      }
+
       // ── Café table row ──
       if (el.tagName === 'TR') {
         var tds = el.querySelectorAll('td');
