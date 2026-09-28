@@ -644,6 +644,12 @@ function saveAll(){
   ['comida','batidos','cafes','frios','zumos','granos'].forEach(function(sec){
     Object.assign(patches,collectSection(sec));
   });
+    document.querySelectorAll('[data-ing]').forEach(function(inp){
+    var id=inp.getAttribute('data-ing');
+    var field=inp.getAttribute('data-field');
+    if(!patches[id])patches[id]={};
+    patches[id][field]=inp.value.trim();
+  });
   var extras=collectExtras();
   setStatus('Guardando...','saving');
   jsonbinPut({patches:patches,extras:extras},function(err){
