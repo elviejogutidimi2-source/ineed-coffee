@@ -554,12 +554,10 @@ function show(id, btn) {
 </script>
 <script src="config.js"></script>
 <script>
-// ── SINCRONIZACIÓN DE LA CARTA (Cloudflare, con respaldo en JSONBin) ──────────────────────────────────
-// INSTRUCCIONES: reemplaza los dos valores de abajo con los tuyos de jsonbin.io
-var INC_BIN_ID  = '69c271aec3097a1dd5555fad';   // ← ej: 67a8b2c3d4e5f6a7b8c9d0e1
-var INC_API_KEY = '$2a$10$OF/aphLfABPvb.xCzP7sxeubM//Uad97gTOm2i2sx7U01hYs89xKK';  // ← Master Key de jsonbin.io
-// SEGURIDAD: crea en jsonbin.io una "Access Key" con permiso SOLO de lectura para este bin,
-// pégala aquí y deja INC_API_KEY vacía (''). Así la Master Key no queda pública.
+// ── SINCRONIZACIÓN DE LA CARTA (Cloudflare) ──────────────────────────────────
+// Respaldo antiguo en JSONBin: desactivado (sin claves en el código público).
+var INC_BIN_ID  = '';
+var INC_API_KEY = '';
 var INC_ACCESS_KEY = '';
 
 (function syncFromAdmin() {

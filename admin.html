@@ -329,9 +329,7 @@ var ADMIN_PW = '';           // contraseña (modo Cloudflare): solo en memoria
 function apiBase(){return (typeof INC_API_BASE==='string')?INC_API_BASE.replace(/\/+$/,''):'';}
 function useApi(){return !!apiBase();}
 
-// TEMPORAL: solo para importar una vez los datos de JSONBin a Cloudflare.
-// Se borrará cuando la migración esté hecha.
-var LEGACY_JSONBIN={binId:'69c271aec3097a1dd5555fad',apiKey:'$2a$10$OF/aphLfABPvb.xCzP7sxeubM//Uad97gTOm2i2sx7U01hYs89xKK'};
+var LEGACY_JSONBIN=null;   // migración a Cloudflare completada
 
 function getCred(){try{return JSON.parse(localStorage.getItem('inc_cred')||'null');}catch(e){return null;}}
 function saveCred(c){try{localStorage.setItem('inc_cred',JSON.stringify(c));}catch(e){}}
@@ -422,11 +420,9 @@ function loadRecord(cb){
   apiGet(function(err,rec){
     if(err)return cb(err,null,false);
     if(!rec.empty)return cb(null,rec,false);
-    var cred=getCred()||LEGACY_JSONBIN;
-    jsonbinGet(cred,function(err2,old){
-      if(err2&&cred!==LEGACY_JSONBIN)return jsonbinGet(LEGACY_JSONBIN,function(e3,o3){cb(e3,o3,true);});
-      cb(err2,old,true);
-    });
+    var cred=getCred();
+    if(!cred)return cb(null,{patches:{},extras:[]},false);
+    jsonbinGet(cred,function(err2,old){cb(err2,old,true);});
   });
 }
 
