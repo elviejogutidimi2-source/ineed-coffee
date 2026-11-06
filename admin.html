@@ -247,14 +247,14 @@ textarea{resize:vertical;min-height:52px;line-height:1.6}
 var DEF = {
   comida:[
     {id:'yogurt',       name:'Yogurt',                         price:'5,00', desc:'Frutas de temporada, coco, muesli'},
-    {id:'toast_half',   name:'½ Toast',                        price:'1,20', desc:'Extra ingrediente +€0,70 · Extra especial +€0,90'},
-    {id:'toast_full',   name:'1 Toast',                        price:'2,30', desc:'Extra ingrediente +€0,70 · Extra especial +€0,90'},
-    {id:'croissant',    name:'Croissant',                      price:'1,70', desc:'Extra ingrediente +€0,70 · Extra especial +€0,90'},
-    {id:'bocadillo',    name:'Bocadillo (Sandwich)',            price:'4,80', desc:'Extra +€0,70 · Extra especial +€0,90'},
-    {id:'bagel',        name:'Bagel',                          price:'4,20', desc:'Extra +€0,70 · Extra especial +€0,90'},
+    {id:'toast_half',   name:'½ Toast',                        price:'1,20', desc:''},
+    {id:'toast_full',   name:'1 Toast',                        price:'2,30', desc:''},
+    {id:'croissant',    name:'Croissant',                      price:'1,70', desc:''},
+    {id:'bocadillo',    name:'Bocadillo (Sandwich)',            price:'4,80', desc:''},
+    {id:'bagel',        name:'Bagel',                          price:'4,20', desc:''},
     {id:'roll_casero',  name:'Roll casero de pavo y queso',    price:'2,80', desc:''},
     {id:'roll_gourmet', name:'Roll Gourmet',                   price:'4,50', desc:'Pavo, queso, tomate, aguacate, mostaza'},
-    {id:'bizcocho',     name:'Bizcocho vegano casero',          price:'3,00', desc:'Banana bread · Carrot cake · Pumpkin chocolate'},
+    {id:'bizcocho',     name:'Bizcochos veganos sin gluten casero', price:'3,00', desc:'Banana bread · Carrot cake · Pumpkin chocolate'},
     {id:'cinnamon',     name:'Cinnamon Roll vegano casero',     price:'3,00', desc:''},
     {id:'napolitana',   name:'Napolitana',                     price:'1,80', desc:''},
     {id:'muffin',       name:'Muffin choco',                   price:'2,80', desc:''},
@@ -381,6 +381,12 @@ function loadAndShow(){
       if(patches[id]&&patches[id].desc)
         patches[id].desc=patches[id].desc.replace(/^2 ingredientes\s*·\s*/i,'');
     });
+    // Limpieza: valores por defecto antiguos → nuevos
+    if(patches.bizcocho&&patches.bizcocho.name==='Bizcocho vegano casero')
+      patches.bizcocho.name='Bizcochos veganos sin gluten casero';
+    if(patches.ing_especial&&patches.ing_especial.list)
+      patches.ing_especial.list=patches.ing_especial.list.replace(/pistacchio/gi,'pistacho');
+    AUTO_DESC_IDS.forEach(function(id){if(patches[id])patches[id].desc='';});
     renderAll(patches);
     setStatus('✓ Listo','saved');
     setTimeout(function(){setStatus('','');},2500);
@@ -400,7 +406,7 @@ function renderAll(patches){
 
 var DEF_ING=[
   {id:'ing_normal',  title:'Ingrediente',         price:'0,80', list:'Tomate · Mantequilla · Queso fundido · Pavo · Mermelada fresa o melocotón · Mix semillas · Ensalada · Jamón ibérico · Mayonesa · Paté ibérico'},
-  {id:'ing_especial',title:'Ingrediente Especial', price:'1,00', list:'Philadelphia · Salmón · Aguacate · Atún · Huevo cocido · Pesto · Tomate seco · Hummus casero · Pimientos rojos · Aceitunas negras · Mostaza · Nueces · Miel · Nutella · Crema de pistacchio'}
+  {id:'ing_especial',title:'Ingrediente Especial', price:'1,00', list:'Philadelphia · Salmón · Aguacate · Atún · Huevo cocido · Pesto · Tomate seco · Hummus casero · Pimientos rojos · Aceitunas negras · Mostaza · Nueces · Miel · Nutella · Crema de pistacho'}
 ];
 
 function renderIngredientes(patches){
@@ -417,13 +423,13 @@ function makeIngCard(d){
   var wrap=document.createElement('div');
   wrap.style.cssText='background:#fff;border:1px solid #e0d9d0;border-radius:12px;padding:16px;min-width:260px;flex:1';
   wrap.innerHTML=
-    '<p style="font-weight:700;margin-bottom:8px">'+d.title+'</p>'+
+    '<p style="font-weight:700;margin-bottom:8px">'+esc(d.title)+'</p>'+
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'+
       '<span style="font-size:12px;color:#888">Precio €</span>'+
-      '<input data-ing="'+d.id+'" data-field="price" value="'+d.price+'" style="width:70px;border:1px solid #ccc;border-radius:6px;padding:4px 8px;font-size:14px">'+
+      '<input data-ing="'+esc(d.id)+'" data-field="price" value="'+esc(d.price)+'" style="width:70px;border:1px solid #ccc;border-radius:6px;padding:4px 8px;font-size:14px">'+
     '</div>'+
     '<p style="font-size:12px;color:#888;margin-bottom:4px">Ingredientes (separados por ·)</p>'+
-    '<textarea data-ing="'+d.id+'" data-field="list" rows="4" style="width:100%;border:1px solid #ccc;border-radius:6px;padding:6px 8px;font-size:13px;resize:vertical;box-sizing:border-box">'+d.list+'</textarea>';
+    '<textarea data-ing="'+esc(d.id)+'" data-field="list" rows="4" style="width:100%;border:1px solid #ccc;border-radius:6px;padding:6px 8px;font-size:13px;resize:vertical;box-sizing:border-box">'+esc(d.list)+'</textarea>';
   return wrap;
 }
 
@@ -479,7 +485,11 @@ function renderExtras(){
 
 // ─ ROW MAKERS ─
 
+// Su descripción se genera sola en la carta con los precios de "Ingredientes"
+var AUTO_DESC_IDS=['toast_half','toast_full','croissant','bocadillo','bagel'];
+
 function makeMenuRow(d,isExtra){
+  var auto=!isExtra&&AUTO_DESC_IDS.indexOf(d.id)!==-1;
   var div=document.createElement('div');
   div.className='product-row'+(isExtra?' is-extra':'');
   div.setAttribute('data-id',d.id);
@@ -492,7 +502,9 @@ function makeMenuRow(d,isExtra){
       '<div><p class="field-label">Nombre</p><input type="text" class="f-name" value="'+esc(d.name||'')+'"></div>'+
       '<div><p class="field-label">Precio €</p><input type="text" class="price-input f-price" value="'+esc(d.price||'')+'"></div>'+
     '</div>'+
-    '<div><p class="field-label">Descripción</p><textarea class="f-desc" style="min-height:44px">'+esc(d.desc||'')+'</textarea></div>';
+    (auto
+      ?'<div><p class="field-label">Descripción</p><p class="scores-hint">Automática: muestra los precios de extra que pongas en «Ingredientes» (abajo).</p></div>'
+      :'<div><p class="field-label">Descripción</p><textarea class="f-desc" style="min-height:44px">'+esc(d.desc||'')+'</textarea></div>');
   return div;
 }
 
