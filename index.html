@@ -552,8 +552,9 @@ function show(id, btn) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
+<script src="config.js"></script>
 <script>
-// ── SINCRONIZACIÓN CON JSONBIN ──────────────────────────────────
+// ── SINCRONIZACIÓN DE LA CARTA (Cloudflare, con respaldo en JSONBin) ──────────────────────────────────
 // INSTRUCCIONES: reemplaza los dos valores de abajo con los tuyos de jsonbin.io
 var INC_BIN_ID  = '69c271aec3097a1dd5555fad';   // ← ej: 67a8b2c3d4e5f6a7b8c9d0e1
 var INC_API_KEY = '$2a$10$OF/aphLfABPvb.xCzP7sxeubM//Uad97gTOm2i2sx7U01hYs89xKK';  // ← Master Key de jsonbin.io
@@ -562,20 +563,33 @@ var INC_API_KEY = '$2a$10$OF/aphLfABPvb.xCzP7sxeubM//Uad97gTOm2i2sx7U01hYs89xKK'
 var INC_ACCESS_KEY = '';
 
 (function syncFromAdmin() {
-  if (INC_BIN_ID === 'TU_BIN_ID_AQUI' || INC_API_KEY === 'TU_API_KEY_AQUI') return;
-  var hdrs = { 'X-Bin-Meta': 'false' };
-  if (INC_ACCESS_KEY) hdrs['X-Access-Key'] = INC_ACCESS_KEY;
-  else if (INC_API_KEY) hdrs['X-Master-Key'] = INC_API_KEY;
-  fetch('https://api.jsonbin.io/v3/b/' + INC_BIN_ID + '/latest', {
-    headers: hdrs
-  })
-  .then(function(r) { return r.json(); })
+  // 1) Carta guardada en Cloudflare (si está configurado en config.js)
+  function loadFromApi() {
+    var base = (typeof INC_API_BASE === 'string') ? INC_API_BASE.replace(/\/+$/, '') : '';
+    if (!base) return Promise.reject(new Error('api_off'));
+    return fetch(base + '/api/menu', { cache: 'no-store' })
+      .then(function(r) { if (!r.ok) throw new Error('api_' + r.status); return r.json(); })
+      .then(function(d) { if (!d || d.empty || !d.patches) throw new Error('api_empty'); return d; });
+  }
+
+  // 2) Respaldo: JSONBin (como hasta ahora)
+  function loadFromJsonbin() {
+    if (!INC_BIN_ID || (!INC_ACCESS_KEY && !INC_API_KEY)) return Promise.reject(new Error('jsonbin_off'));
+    var hdrs = { 'X-Bin-Meta': 'false' };
+    if (INC_ACCESS_KEY) hdrs['X-Access-Key'] = INC_ACCESS_KEY;
+    else hdrs['X-Master-Key'] = INC_API_KEY;
+    return fetch('https://api.jsonbin.io/v3/b/' + INC_BIN_ID + '/latest', { headers: hdrs })
+      .then(function(r) { if (!r.ok) throw new Error('jsonbin_' + r.status); return r.json(); });
+  }
+
+  loadFromApi()
+  .catch(loadFromJsonbin)
   .then(function(data) {
     applyPatches(data.patches || {});
     applyExtras(data.extras || []);
     refreshExtraPrices();
   })
-  .catch(function() {/* sin internet: muestra defaults */});
+  .catch(function() {/* sin internet: muestra la carta por defecto */});
 
   // Productos cuya descripción se genera sola con los precios de Ingredientes
   var AUTO_DESC = { toast_half:1, toast_full:1, croissant:1, bocadillo:1, bagel:1 };
