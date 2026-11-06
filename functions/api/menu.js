@@ -2,16 +2,24 @@
 //
 // GET  /api/menu   → devuelve { patches, extras } (público, sin claves)
 // PUT  /api/menu   → guarda la carta. Requiere cabecera "X-Admin-Password".
-// POST /api/menu   → con { check: true } solo comprueba la contraseña (login del admin).
+// POST /api/menu   → sin cuerpo: comprueba la contraseña (login del admin).
+//                    { action: "change_password", newPassword } → cambia la contraseña.
 //
 // Configuración en Cloudflare (Settings → Bindings / Variables and secrets):
 //   MENU            → KV namespace (binding)
-//   ADMIN_PASSWORD  → secreto con la contraseña del admin
+//   ADMIN_PASSWORD  → secreto: contraseña inicial y LLAVE DE EMERGENCIA
+//
+// Contraseña: cuando se cambia desde el admin se guarda cifrada (PBKDF2) en KV ("auth").
+// Desde entonces vale la nueva y también ADMIN_PASSWORD (para recuperar el acceso
+// si alguien olvida la suya). Para volver a la inicial: borrar la clave "auth" del KV.
 
 const KEY = 'menu';
 const BACKUP_PREFIX = 'backup:';
 const BACKUP_TTL = 60 * 60 * 24 * 90;          // copias de seguridad: 90 días
 const MAX_BODY = 256 * 1024;                    // 256 KB, de sobra para la carta
+const AUTH_KEY = 'auth';
+const PBKDF2_ITER = 100000;                     // máximo admitido por Workers
+const MIN_PW = 8, MAX_PW = 200;
 
 // Webs que pueden usar el admin desde otro dominio
 const ALLOWED_ORIGINS = [
@@ -53,14 +61,56 @@ async function samePassword(given, expected) {
   return diff === 0;
 }
 
+function b64(bytes) { return btoa(String.fromCharCode(...new Uint8Array(bytes))); }
+function unb64(str) { return Uint8Array.from(atob(str), c => c.charCodeAt(0)); }
+
+async function pbkdf2(password, salt, iterations) {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+  return crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations }, key, 256);
+}
+
+function sameBytes(a, b) {
+  const x = new Uint8Array(a), y = new Uint8Array(b);
+  if (x.length !== y.length) return false;
+  let diff = 0;
+  for (let i = 0; i < x.length; i++) diff |= x[i] ^ y[i];
+  return diff === 0;
+}
+
+async function storedAuth(env) {
+  if (!env.MENU) return null;
+  const a = await env.MENU.get(AUTH_KEY, { type: 'json' });
+  return a && a.hash && a.salt ? a : null;
+}
+
+async function checkPassword(given, env) {
+  if (!given) return false;
+  // Llave de emergencia: la contraseña puesta en Cloudflare siempre sirve
+  if (await samePassword(given, env.ADMIN_PASSWORD || '')) return true;
+  const a = await storedAuth(env);
+  if (!a) return false;
+  const h = await pbkdf2(given, unb64(a.salt), a.iter || PBKDF2_ITER);
+  return sameBytes(h, unb64(a.hash));
+}
+
 async function authorized(request, env) {
-  const ok = await samePassword(request.headers.get('X-Admin-Password') || '', env.ADMIN_PASSWORD || '');
+  const ok = await checkPassword(request.headers.get('X-Admin-Password') || '', env);
   if (!ok) await new Promise(r => setTimeout(r, 800));   // frena intentos a lo bruto
   return ok;
 }
 
 function configured(env) {
   return !!(env.MENU && env.ADMIN_PASSWORD);
+}
+
+async function changePassword(request, env, newPassword) {
+  if (typeof newPassword !== 'string' || newPassword.length < MIN_PW || newPassword.length > MAX_PW) {
+    return json(request, { error: 'weak_password', min: MIN_PW }, 400);
+  }
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const hash = await pbkdf2(newPassword, salt, PBKDF2_ITER);
+  await env.MENU.put(AUTH_KEY, JSON.stringify({ salt: b64(salt), hash: b64(hash), iter: PBKDF2_ITER, changedAt: new Date().toISOString() }));
+  return json(request, { ok: true });
 }
 
 function validMenu(data) {
@@ -84,7 +134,13 @@ export async function onRequestGet({ request, env }) {
 export async function onRequestPost({ request, env }) {
   if (!configured(env)) return json(request, { error: 'not_configured' }, 503);
   if (!(await authorized(request, env))) return json(request, { error: 'wrong_password' }, 401);
-  return json(request, { ok: true });
+  const text = await request.text();
+  if (!text) return json(request, { ok: true });            // solo login
+  if (text.length > 4096) return json(request, { error: 'too_large' }, 413);
+  let body;
+  try { body = JSON.parse(text); } catch { return json(request, { error: 'invalid_json' }, 400); }
+  if (body && body.action === 'change_password') return changePassword(request, env, body.newPassword);
+  return json(request, { error: 'unknown_action' }, 400);
 }
 
 export async function onRequestPut({ request, env }) {

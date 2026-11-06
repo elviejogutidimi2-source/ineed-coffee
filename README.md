@@ -30,3 +30,14 @@ Si la API no responde, la carta muestra los datos de respaldo y nunca se queda e
 8. Entrar al admin con la nueva contraseña: la primera vez importa solo los datos de JSONBin.
 
 Después de comprobar que todo va bien: quitar la clave de JSONBin del código y regenerarla en jsonbin.io.
+
+## Contraseña del admin
+
+- Quien gestione la carta puede cambiarla desde el admin (botón **🔑 Contraseña**). Se guarda cifrada en el KV (clave `auth`).
+- La contraseña puesta en Cloudflare (`ADMIN_PASSWORD`) sigue funcionando siempre como **llave de emergencia** del dueño.
+- Para anular la contraseña del gestor: en Cloudflare → Workers KV → `ineed-coffee-menu` → borrar la clave `auth`.
+
+## Productos no disponibles
+
+Cada producto tiene en el admin un interruptor **No disponible**: si está activado, el producto no aparece en la carta.
+Si todos los productos de un grupo están ocultos, también se oculta el título del grupo.

@@ -98,6 +98,18 @@ textarea{resize:vertical;min-height:52px;line-height:1.6}
 .toggle input:checked+.toggle-slider{background:rgba(192,57,43,.25);border-color:rgba(192,57,43,.6)}
 .toggle input:checked+.toggle-slider::before{transform:translateX(18px);background:var(--danger-hi)}
 
+/* NO DISPONIBLE */
+.product-row.is-off,.cafe-row.is-off,.bean-editor.is-off{opacity:.45;border-style:dashed}
+.product-row.is-off:hover,.cafe-row.is-off:hover,.bean-editor.is-off:hover{opacity:.8}
+.toggle-hint{font-size:9px;letter-spacing:.06em;color:var(--muted);opacity:.7}
+.cafe-toggle{display:flex;align-items:center;gap:8px;margin-top:8px}
+
+/* MODAL CONTRASEÑA */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
+.modal.visible{display:flex}
+.modal .auth-card{position:relative}
+.modal-ok{background:rgba(39,174,96,.15);border:1px solid rgba(39,174,96,.35);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--success-hi);margin-bottom:16px;display:none}
+
 /* CAFE TABLE */
 .cafe-rows{display:flex;flex-direction:column;gap:8px}
 .cafe-head{display:grid;grid-template-columns:1fr 86px 86px 86px;gap:10px;padding:0 16px 10px;opacity:.6}
@@ -178,6 +190,7 @@ textarea{resize:vertical;min-height:52px;line-height:1.6}
   <header class="top-bar">
     <p class="top-logo"><em>I Need Coffee</em> · Admin</p>
     <span class="save-status" id="save-status"></span>
+    <button class="btn btn-ghost btn-sm" id="btn-pw" onclick="openPwModal()" style="display:none">🔑 Contraseña</button>
     <button class="btn btn-ghost btn-sm" onclick="doLogout()">Salir</button>
   </header>
 
@@ -239,6 +252,24 @@ textarea{resize:vertical;min-height:52px;line-height:1.6}
   <div class="save-bar">
     <p class="save-hint">Los cambios se sincronizan en todos los dispositivos</p>
     <button class="btn btn-primary" onclick="saveAll()" style="width:160px">💾 Guardar todo</button>
+  </div>
+</div>
+
+<!-- CAMBIAR CONTRASEÑA -->
+<div class="modal" id="pw-modal" onclick="if(event.target===this)closePwModal()">
+  <div class="auth-card">
+    <p class="auth-logo">Cambiar contraseña</p>
+    <p class="auth-sub">Mínimo 8 caracteres</p>
+    <div class="auth-error" id="pw-error"></div>
+    <div class="modal-ok" id="pw-ok">✓ Contraseña cambiada. Úsala la próxima vez que entres.</div>
+    <label class="auth-label">Contraseña actual</label>
+    <input class="auth-input" type="password" id="pw-current" autocomplete="current-password">
+    <label class="auth-label">Contraseña nueva</label>
+    <input class="auth-input" type="password" id="pw-new" autocomplete="new-password">
+    <label class="auth-label">Repite la contraseña nueva</label>
+    <input class="auth-input" type="password" id="pw-new2" autocomplete="new-password" onkeydown="if(event.key==='Enter')doChangePassword()">
+    <button class="btn btn-primary" id="pw-submit" onclick="doChangePassword()">Cambiar contraseña</button>
+    <p class="auth-link"><a onclick="closePwModal()">Cerrar</a></p>
   </div>
 </div>
 
@@ -352,6 +383,7 @@ function doLogin(){
       if(r.status===401){loginError('Contraseña incorrecta');return;}
       if(!r.ok){loginError('El servidor no responde ('+r.status+'). Inténtalo en un momento.');return;}
       ADMIN_PW=pw;
+      document.getElementById('btn-pw').style.display='';
       document.getElementById('login-error').style.display='none';
       loadAndShow();
     })
@@ -373,6 +405,42 @@ function doSetup(){
   CRED={binId:bin,apiKey:key,password:pw};
   saveCred(CRED);
   loadAndShow();
+}
+
+function openPwModal(){
+  ['pw-current','pw-new','pw-new2'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('pw-error').style.display='none';
+  document.getElementById('pw-ok').style.display='none';
+  document.getElementById('pw-submit').disabled=false;
+  document.getElementById('pw-modal').classList.add('visible');
+  setTimeout(function(){document.getElementById('pw-current').focus();},50);
+}
+function closePwModal(){document.getElementById('pw-modal').classList.remove('visible');}
+function pwError(msg){var e=document.getElementById('pw-error');e.textContent=msg;e.style.display='block';}
+
+function doChangePassword(){
+  var cur=document.getElementById('pw-current').value;
+  var n1=document.getElementById('pw-new').value;
+  var n2=document.getElementById('pw-new2').value;
+  document.getElementById('pw-error').style.display='none';
+  if(!cur){pwError('Escribe la contraseña actual');return;}
+  if(n1.length<8){pwError('La nueva contraseña debe tener al menos 8 caracteres');return;}
+  if(n1!==n2){pwError('Las contraseñas nuevas no coinciden');return;}
+  if(n1===cur){pwError('La nueva contraseña es igual a la actual');return;}
+  var btn=document.getElementById('pw-submit');btn.disabled=true;
+  fetch(apiBase()+'/api/menu',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-Admin-Password':cur},
+    body:JSON.stringify({action:'change_password',newPassword:n1})
+  }).then(function(r){
+    btn.disabled=false;
+    if(r.status===401){pwError('La contraseña actual no es correcta');return;}
+    if(r.status===400){pwError('La nueva contraseña no es válida (mínimo 8 caracteres)');return;}
+    if(!r.ok){pwError('Error del servidor ('+r.status+'). Inténtalo de nuevo.');return;}
+    ADMIN_PW=n1;
+    document.getElementById('pw-ok').style.display='block';
+    ['pw-current','pw-new','pw-new2'].forEach(function(id){document.getElementById(id).value='';});
+  }).catch(function(){btn.disabled=false;pwError('Sin conexión con el servidor');});
 }
 
 function doLogout(){ADMIN_PW='';LOADED=false;showScreen('login');document.getElementById('login-pass').value='';}
@@ -558,6 +626,22 @@ function renderExtras(){
 // Su descripción se genera sola en la carta con los precios de "Ingredientes"
 var AUTO_DESC_IDS=['toast_half','toast_full','croissant','bocadillo','bagel'];
 
+function availToggle(d){
+  return '<div class="toggle-wrap" title="Si está activado, el producto no aparece en la carta">'+
+    '<span class="toggle-label">No disponible <span class="toggle-hint">· oculto en la carta</span></span>'+
+    '<label class="toggle"><input type="checkbox" class="f-unavail"'+(d.unavail?' checked':'')+'><span class="toggle-slider"></span></label>'+
+  '</div>';
+}
+
+function markOff(div,d){if(d.unavail)div.classList.add('is-off');return div;}
+
+// Atenuar en el admin los productos marcados como no disponibles
+document.addEventListener('change',function(e){
+  if(!e.target.classList||!e.target.classList.contains('f-unavail'))return;
+  var row=e.target.closest('.product-row,.cafe-row,.bean-editor');
+  if(row)row.classList.toggle('is-off',e.target.checked);
+});
+
 function makeMenuRow(d,isExtra){
   var auto=!isExtra&&AUTO_DESC_IDS.indexOf(d.id)!==-1;
   var div=document.createElement('div');
@@ -566,7 +650,8 @@ function makeMenuRow(d,isExtra){
   div.innerHTML=
     '<div class="pr-top">'+
       '<span class="pr-badge'+(isExtra?' extra':'')+'">'+esc(isExtra?'➕ Nuevo':'Existente')+'</span>'+
-      (isExtra?'<button class="btn btn-danger" style="margin-left:auto" onclick="removeExtra(\''+d.id+'\')">✕ Eliminar</button>':'')+
+      availToggle(d)+
+      (isExtra?'<button class="btn btn-danger" style="margin-left:12px" onclick="removeExtra(\''+d.id+'\')">✕ Eliminar</button>':'')+
     '</div>'+
     '<div style="display:grid;grid-template-columns:1fr 86px;gap:10px;align-items:end;margin-bottom:10px">'+
       '<div><p class="field-label">Nombre</p><input type="text" class="f-name" value="'+esc(d.name||'')+'"></div>'+
@@ -575,21 +660,17 @@ function makeMenuRow(d,isExtra){
     (auto
       ?'<div><p class="field-label">Descripción</p><p class="scores-hint">Automática: muestra los precios de extra que pongas en «Ingredientes» (abajo).</p></div>'
       :'<div><p class="field-label">Descripción</p><textarea class="f-desc" style="min-height:44px">'+esc(d.desc||'')+'</textarea></div>');
-  return div;
+  return markOff(div,d);
 }
 
 function makeBatidoRow(d,isExtra){
   var div=document.createElement('div');
   div.className='product-row'+(isExtra?' is-extra':'');
   div.setAttribute('data-id',d.id);
-  var unavail=d.unavail?'checked':'';
   div.innerHTML=
     '<div class="pr-top">'+
       '<span class="pr-badge'+(isExtra?' extra':'')+'">'+(d.num||'No.?')+'</span>'+
-      '<div class="toggle-wrap">'+
-        '<span class="toggle-label">No disponible</span>'+
-        '<label class="toggle"><input type="checkbox" class="f-unavail" '+unavail+'><span class="toggle-slider"></span></label>'+
-      '</div>'+
+      availToggle(d)+
       (isExtra?'<button class="btn btn-danger" style="margin-left:12px" onclick="removeExtra(\''+d.id+'\')">✕</button>':'')+
     '</div>'+
     '<div style="display:grid;grid-template-columns:1fr 86px;gap:10px;align-items:end;margin-bottom:10px">'+
@@ -597,7 +678,7 @@ function makeBatidoRow(d,isExtra){
       '<div><p class="field-label">Precio €</p><input type="text" class="price-input f-price" value="'+esc(d.price||'5,00')+'"></div>'+
     '</div>'+
     '<div><p class="field-label">Ingredientes</p><input type="text" class="f-ing" value="'+esc(d.ing||'')+'" placeholder="Fruta 1, fruta 2..."></div>';
-  return div;
+  return markOff(div,d);
 }
 
 function makeCafeRow(d,isExtra){
@@ -609,12 +690,13 @@ function makeCafeRow(d,isExtra){
       '<p class="field-label">Bebida</p>'+
       '<input type="text" class="f-name" value="'+esc(d.name||'')+'" placeholder="Nombre" style="margin-bottom:6px">'+
       '<input type="text" class="f-note" value="'+esc(d.note||'')+'" placeholder="Nota opcional" style="font-size:11px;opacity:.7">'+
+      '<div class="cafe-toggle">'+availToggle(d).replace('class="toggle-wrap"','class="toggle-wrap" style="margin-left:0"')+'</div>'+
       (isExtra?'<button class="btn btn-danger" style="margin-top:6px;width:100%" onclick="removeExtra(\''+d.id+'\')">✕ Eliminar</button>':'')+
     '</div>'+
     '<div><p class="field-label" style="text-align:center">Regular €</p><input type="text" class="price-input f-reg" value="'+esc(d.reg||'')+'" placeholder="—"></div>'+
     '<div><p class="field-label" style="text-align:center">Grande €</p><input type="text" class="price-input f-med" value="'+esc(d.med||'')+'" placeholder="—"></div>'+
     '<div><p class="field-label" style="text-align:center">XL €</p><input type="text" class="price-input f-xl" value="'+esc(d.xl||'')+'" placeholder="—"></div>';
-  return div;
+  return markOff(div,d);
 }
 
 function makeZumoRow(d,isExtra){
@@ -624,7 +706,8 @@ function makeZumoRow(d,isExtra){
   div.innerHTML=
     '<div class="pr-top">'+
       '<span class="pr-badge'+(isExtra?' extra':'')+'">'+esc(isExtra?'➕ Nuevo':'Existente')+'</span>'+
-      (isExtra?'<button class="btn btn-danger" style="margin-left:auto" onclick="removeExtra(\''+d.id+'\')">✕ Eliminar</button>':'')+
+      availToggle(d)+
+      (isExtra?'<button class="btn btn-danger" style="margin-left:12px" onclick="removeExtra(\''+d.id+'\')">✕ Eliminar</button>':'')+
     '</div>'+
     '<div class="zumo-prices" style="margin-bottom:10px">'+
       '<div><p class="field-label">Nombre</p><input type="text" class="f-name" value="'+esc(d.name||'')+'"></div>'+
@@ -632,7 +715,7 @@ function makeZumoRow(d,isExtra){
       '<div><p class="field-label">Grande €</p><input type="text" class="price-input f-price2" value="'+esc(d.price2||'')+'" placeholder="—"></div>'+
     '</div>'+
     '<div><p class="field-label">Descripción</p><textarea class="f-desc" style="min-height:40px">'+esc(d.desc||'')+'</textarea></div>';
-  return div;
+  return markOff(div,d);
 }
 
 function makeGranoCard(d,isExtra){
@@ -640,7 +723,9 @@ function makeGranoCard(d,isExtra){
   div.className='bean-editor'+(isExtra?' is-extra':'');
   div.setAttribute('data-id',d.id);
   div.innerHTML=
-    (isExtra?'<div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn btn-danger" onclick="removeExtra(\''+d.id+'\')">✕ Eliminar</button></div>':'')+
+    '<div class="pr-top">'+availToggle(d)+
+      (isExtra?'<button class="btn btn-danger" style="margin-left:12px" onclick="removeExtra(\''+d.id+'\')">✕ Eliminar</button>':'')+
+    '</div>'+
     '<div class="bean-fields">'+
       '<div><p class="field-label">Origen</p><input type="text" class="f-origin" value="'+esc(d.origin||'')+'" placeholder="Colombia"></div>'+
       '<div><p class="field-label">Precio €</p><input type="text" class="price-input f-price" value="'+esc(d.price||'')+'"></div>'+
@@ -650,7 +735,7 @@ function makeGranoCard(d,isExtra){
       '<input type="text" class="f-scores" value="'+esc(d.scores||'')+'" placeholder="Aroma 10|Sabor 8|Floral|Score 82">'+
       '<p class="scores-hint">Ej: Aroma 10|Sabor 7.5|Acidez 7.5|Score 82 · Separados por |</p>'+
     '</div>';
-  return div;
+  return markOff(div,d);
 }
 
 // ─ ADD / REMOVE EXTRAS ─
@@ -685,15 +770,15 @@ function removeExtra(id){
 
 function readRow(row,section){
   var v=function(cls){var el=row.querySelector(cls);return el?el.value.trim():'';};
-  var b=function(cls){var el=row.querySelector(cls);return el&&el.checked;};
-  if(section==='cafes') return{name:v('.f-name'),note:v('.f-note'),reg:v('.f-reg'),med:v('.f-med'),xl:v('.f-xl')};
+  var b=function(cls){var el=row.querySelector(cls);return !!(el&&el.checked);};
+  if(section==='cafes') return{name:v('.f-name'),note:v('.f-note'),reg:v('.f-reg'),med:v('.f-med'),xl:v('.f-xl'),unavail:b('.f-unavail')};
   if(section==='batidos'){
     var numEl=row.querySelector('.pr-badge');
     return{name:v('.f-name'),ing:v('.f-ing'),price:v('.f-price'),unavail:b('.f-unavail'),num:numEl?numEl.textContent.trim():''};
   }
-  if(section==='granos') return{origin:v('.f-origin'),price:v('.f-price'),desc:v('.f-desc'),scores:v('.f-scores')};
-  if(section==='zumos') return{name:v('.f-name'),price:v('.f-price'),price2:v('.f-price2'),desc:v('.f-desc')};
-  return{name:v('.f-name'),price:v('.f-price'),desc:v('.f-desc')};
+  if(section==='granos') return{origin:v('.f-origin'),price:v('.f-price'),desc:v('.f-desc'),scores:v('.f-scores'),unavail:b('.f-unavail')};
+  if(section==='zumos') return{name:v('.f-name'),price:v('.f-price'),price2:v('.f-price2'),desc:v('.f-desc'),unavail:b('.f-unavail')};
+  return{name:v('.f-name'),price:v('.f-price'),desc:v('.f-desc'),unavail:b('.f-unavail')};
 }
 
 function collectSection(sec){

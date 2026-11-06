@@ -97,6 +97,7 @@ header::before{content:'';position:absolute;width:320px;height:320px;border:1px 
 .sm-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--espresso);line-height:1.3;margin-bottom:5px}
 .sm-ing{font-size:12.5px;color:var(--muted);font-style:italic;line-height:1.5}
 .sm-price{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);margin-top:10px}
+.is-hidden{display:none!important}
 .sm-unavail{opacity:.38}
 .sm-unavail .sm-name::after{content:' (N/D)';font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.1em;color:var(--muted)}
 .bean-card{background:var(--espresso);color:var(--cream);border-radius:var(--r-md);padding:clamp(22px,5vw,36px);margin-bottom:16px;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
@@ -174,7 +175,7 @@ footer a{color:var(--gold-hi);text-decoration:none}
     <div class="sm-card" data-pid="sm04"><p class="sm-num">No.04</p><p class="sm-name">Mango Dream</p><p class="sm-ing" data-i18n="s04">Pera, mango</p><p class="sm-price">€5,00</p></div>
     <div class="sm-card" data-pid="sm05"><p class="sm-num">No.05</p><p class="sm-name">Raspberry Heaven</p><p class="sm-ing" data-i18n="s05">Manzana, frambuesa, arándano, mango</p><p class="sm-price">€5,00</p></div>
     <div class="sm-card" data-pid="sm06"><p class="sm-num">No.06</p><p class="sm-name">Jungle Juice</p><p class="sm-ing" data-i18n="s06">Mango, fresa, arándano, açai</p><p class="sm-price">€5,00</p></div>
-    <div class="sm-card sm-unavail" data-pid="sm07"><p class="sm-num">No.07</p><p class="sm-name">Power Granate</p><p class="sm-price">€5,00</p></div>
+    <div class="sm-card is-hidden" data-pid="sm07"><p class="sm-num">No.07</p><p class="sm-name">Power Granate</p><p class="sm-price">€5,00</p></div>
     <div class="sm-card" data-pid="sm08"><p class="sm-num">No.08</p><p class="sm-name">Coconut Crush</p><p class="sm-ing" data-i18n="s08">Piña, coco</p><p class="sm-price">€5,00</p></div>
     <div class="sm-card" data-pid="sm09"><p class="sm-num">No.09</p><p class="sm-name">Green Reviver</p><p class="sm-ing" data-i18n="s09">Kale, mango, plátano, limón</p><p class="sm-price">€5,00</p></div>
     <div class="sm-card" data-pid="sm10"><p class="sm-num">No.10</p><p class="sm-name">Carrot Boost</p><p class="sm-ing" data-i18n="s10">Zanahoria, piña, papaya, goji, kiwi</p><p class="sm-price">€5,00</p></div>
@@ -586,6 +587,7 @@ var INC_ACCESS_KEY = '';
     applyPatches(data.patches || {});
     applyExtras(data.extras || []);
     refreshExtraPrices();
+    hideEmptyGroups();
   })
   .catch(function() {/* sin internet: muestra la carta por defecto */});
 
@@ -649,6 +651,12 @@ var INC_ACCESS_KEY = '';
         if (!isLegacy(pid, f, raw[f])) p[f] = raw[f];
       });
 
+      // Producto marcado como "No disponible" en el admin → no se muestra
+      if (p.unavail !== undefined) {
+        el.classList.toggle('is-hidden', !!p.unavail);
+        el.classList.remove('sm-unavail');
+      }
+
       // ── Batido (sm-card) ──
       if (el.classList.contains('sm-card')) {
         if (p.name) setPatched(el.querySelector('.sm-name'), p.name, false);
@@ -662,7 +670,6 @@ var INC_ACCESS_KEY = '';
           }
         }
         if (p.price) { var sp = el.querySelector('.sm-price'); if(sp) sp.textContent = '€' + p.price; }
-        if (p.unavail !== undefined) el.classList.toggle('sm-unavail', !!p.unavail);
         return;
       }
 
@@ -759,7 +766,7 @@ var INC_ACCESS_KEY = '';
 
       var html = '';
       if (ex.section === 'batidos') {
-        html = '<div class="sm-card' + (ex.unavail?' sm-unavail':'') + '" data-pid="'+h(ex.id)+'">' +
+        html = '<div class="sm-card" data-pid="'+h(ex.id)+'">' +
           '<p class="sm-num">'+h(ex.num)+'</p>' +
           '<p class="sm-name">'+h(ex.name)+'</p>' +
           (ex.ing?'<p class="sm-ing">'+h(ex.ing)+'</p>':'')+
@@ -799,7 +806,23 @@ var INC_ACCESS_KEY = '';
           else sec.insertAdjacentHTML('beforeend', html);
         }
       }
+      var node = findPid(ex.id);
+      if (node && ex.unavail) node.classList.add('is-hidden');
       } catch (e) { /* un producto mal guardado no rompe el resto de la carta */ }
+    });
+  }
+
+  // Oculta el título de un grupo si todos sus productos están ocultos
+  function hideEmptyGroups() {
+    document.querySelectorAll('.group-label').forEach(function(label) {
+      var items = [], n = label.nextElementSibling;
+      while (n && !n.classList.contains('group-label')) {
+        if (n.hasAttribute('data-pid')) items.push(n);
+        n.querySelectorAll('[data-pid]').forEach(function(c) { items.push(c); });
+        n = n.nextElementSibling;
+      }
+      var allHidden = items.length > 0 && items.every(function(i) { return i.classList.contains('is-hidden'); });
+      label.classList.toggle('is-hidden', allHidden);
     });
   }
 })();
