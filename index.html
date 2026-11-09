@@ -4,7 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>I Need Coffee — Granada</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<meta name="description" content="Carta de I Need Coffee, café artesanal en Plaza del Realejo 5, Granada: desayunos, batidos, cafés, bebidas frías, zumos y café en grano. Menu in English, Italiano y Français.">
+<meta name="theme-color" content="#18100A">
+<link rel="canonical" href="https://elviejogutidimi2-source.github.io/ineed-coffee/">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="I Need Coffee">
+<meta property="og:title" content="I Need Coffee — Granada · Carta">
+<meta property="og:description" content="Café artesanal en Plaza del Realejo 5, Granada. Desayunos, batidos, cafés, zumos y café en grano.">
+<meta property="og:url" content="https://elviejogutidimi2-source.github.io/ineed-coffee/">
+<meta property="og:image" content="https://elviejogutidimi2-source.github.io/ineed-coffee/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="I Need Coffee · 100% Artesanal · Granada">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<link href="fonts/fonts.css" rel="stylesheet">
 <style>
 :root{--ink:#18100A;--espresso:#261408;--roast:#3D1F0D;--brown:#6B3520;--caramel:#B05E20;--gold:#D4882A;--gold-hi:#F0B854;--cream:#FAF3E8;--parchment:#F2E8D4;--latte:#E8D9BF;--text:#2A1608;--muted:#7A5030;--white:#FEFCF8;--r-sm:6px;--r-md:10px;--shadow:0 2px 16px rgba(24,16,10,.10);--shadow-lg:0 8px 32px rgba(24,16,10,.16)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -556,45 +572,48 @@ function show(id, btn) {
 <script src="config.js"></script>
 <script>
 // ── SINCRONIZACIÓN DE LA CARTA (Cloudflare) ──────────────────────────────────
-// Respaldo antiguo en JSONBin: desactivado (sin claves en el código público).
-var INC_BIN_ID  = '';
-var INC_API_KEY = '';
-var INC_ACCESS_KEY = '';
-
 (function syncFromAdmin() {
-  // 1) Carta guardada en Cloudflare (si está configurado en config.js)
-  function loadFromApi() {
-    var base = (typeof INC_API_BASE === 'string') ? INC_API_BASE.replace(/\/+$/, '') : '';
-    if (!base) return Promise.reject(new Error('api_off'));
-    return fetch(base + '/api/menu', { cache: 'no-store' })
-      .then(function(r) { if (!r.ok) throw new Error('api_' + r.status); return r.json(); })
-      .then(function(d) { if (!d || d.empty || !d.patches) throw new Error('api_empty'); return d; });
+  var CACHE_KEY = 'inc_menu_cache';
+
+  function apiBase() {
+    var b = (typeof INC_API_BASE === 'string' && INC_API_BASE) ? INC_API_BASE : 'https://ineed-coffee.pages.dev';
+    return b.replace(/\/+$/, '');
   }
 
-  // 2) Respaldo: JSONBin (como hasta ahora)
-  function loadFromJsonbin() {
-    if (!INC_BIN_ID || (!INC_ACCESS_KEY && !INC_API_KEY)) return Promise.reject(new Error('jsonbin_off'));
-    var hdrs = { 'X-Bin-Meta': 'false' };
-    if (INC_ACCESS_KEY) hdrs['X-Access-Key'] = INC_ACCESS_KEY;
-    else hdrs['X-Master-Key'] = INC_API_KEY;
-    return fetch('https://api.jsonbin.io/v3/b/' + INC_BIN_ID + '/latest', { headers: hdrs })
-      .then(function(r) { if (!r.ok) throw new Error('jsonbin_' + r.status); return r.json(); });
+  function loadFromApi() {
+    return fetch(apiBase() + '/api/menu', { cache: 'no-store' })
+      .then(function(r) { if (!r.ok) throw new Error('api_' + r.status); return r.json(); })
+      .then(function(d) {
+        if (!d || d.empty || !d.patches) throw new Error('api_empty');
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(d)); } catch (e) {}
+        return d;
+      });
   }
+
+  // Respaldo: la última carta que este móvil descargó bien
+  function loadFromCache() {
+    var d = null;
+    try { d = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); } catch (e) {}
+    return d && d.patches ? Promise.resolve(d) : Promise.reject(new Error('no_cache'));
+  }
+
+  // Limpieza: datos antiguos que ya no se usan
+  try { localStorage.removeItem('inc_cred'); } catch (e) {}
 
   loadFromApi()
-  .catch(loadFromJsonbin)
+  .catch(loadFromCache)
   .then(function(data) {
     applyPatches(data.patches || {});
     applyExtras(data.extras || []);
     refreshExtraPrices();
     hideEmptyGroups();
   })
-  .catch(function() {/* sin internet: muestra la carta por defecto */});
+  .catch(function() {/* sin conexión y sin caché: muestra la carta por defecto */});
 
   // Productos cuya descripción se genera sola con los precios de Ingredientes
   var AUTO_DESC = { toast_half:1, toast_full:1, croissant:1, bocadillo:1, bagel:1 };
 
-  // Valores por defecto antiguos guardados en JSONBin: se tratan como "sin cambios"
+  // Valores por defecto antiguos que pudieran quedar guardados: se tratan como "sin cambios"
   var LEGACY = {
     bizcocho: { name: ['Bizcocho vegano casero'] },
     ing_especial: { list: ['Philadelphia · Salmón · Aguacate · Atún · Huevo cocido · Pesto · Tomate seco · Hummus casero · Pimientos rojos · Aceitunas negras · Mostaza · Nueces · Miel · Nutella · Crema de pistacchio'] }

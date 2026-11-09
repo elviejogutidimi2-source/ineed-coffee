@@ -4,6 +4,9 @@
 // PUT  /api/menu   → guarda la carta. Requiere cabecera "X-Admin-Password".
 // POST /api/menu   → sin cuerpo: comprueba la contraseña (login del admin).
 //                    { action: "change_password", newPassword } → cambia la contraseña.
+//                    { action: "list_backups" } → últimas copias de seguridad.
+//                    { action: "restore", key } → recupera una copia (la versión actual
+//                                                  se guarda antes como copia).
 //
 // Configuración en Cloudflare (Settings → Bindings / Variables and secrets):
 //   MENU            → KV namespace (binding)
@@ -103,6 +106,38 @@ function configured(env) {
   return !!(env.MENU && env.ADMIN_PASSWORD);
 }
 
+async function saveMenu(env, data) {
+  const clean = { patches: data.patches, extras: data.extras || [], updatedAt: new Date().toISOString() };
+  // Copia de seguridad de la versión anterior antes de sobrescribir
+  const previous = await env.MENU.get(KEY);
+  if (previous) {
+    await env.MENU.put(BACKUP_PREFIX + new Date().toISOString(), previous, { expirationTtl: BACKUP_TTL });
+  }
+  await env.MENU.put(KEY, JSON.stringify(clean));
+  return clean;
+}
+
+async function listBackups(request, env) {
+  const keys = [];
+  let cursor;
+  do {
+    const page = await env.MENU.list({ prefix: BACKUP_PREFIX, cursor });
+    page.keys.forEach(k => keys.push(k.name));
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  keys.sort().reverse();
+  return json(request, { backups: keys.slice(0, 30).map(k => ({ key: k, date: k.slice(BACKUP_PREFIX.length) })) });
+}
+
+async function restoreBackup(request, env, key) {
+  if (typeof key !== 'string' || !key.startsWith(BACKUP_PREFIX)) return json(request, { error: 'invalid_key' }, 400);
+  const data = await env.MENU.get(key, { type: 'json' });
+  if (!data) return json(request, { error: 'not_found' }, 404);
+  if (!validMenu(data)) return json(request, { error: 'invalid_menu' }, 400);
+  const saved = await saveMenu(env, data);
+  return json(request, { ok: true, updatedAt: saved.updatedAt });
+}
+
 async function changePassword(request, env, newPassword) {
   if (typeof newPassword !== 'string' || newPassword.length < MIN_PW || newPassword.length > MAX_PW) {
     return json(request, { error: 'weak_password', min: MIN_PW }, 400);
@@ -140,6 +175,8 @@ export async function onRequestPost({ request, env }) {
   let body;
   try { body = JSON.parse(text); } catch { return json(request, { error: 'invalid_json' }, 400); }
   if (body && body.action === 'change_password') return changePassword(request, env, body.newPassword);
+  if (body && body.action === 'list_backups') return listBackups(request, env);
+  if (body && body.action === 'restore') return restoreBackup(request, env, body.key);
   return json(request, { error: 'unknown_action' }, 400);
 }
 
@@ -153,13 +190,6 @@ export async function onRequestPut({ request, env }) {
   try { data = JSON.parse(text); } catch { return json(request, { error: 'invalid_json' }, 400); }
   if (!validMenu(data)) return json(request, { error: 'invalid_menu' }, 400);
 
-  const clean = { patches: data.patches, extras: data.extras || [], updatedAt: new Date().toISOString() };
-
-  // Copia de seguridad de la versión anterior antes de sobrescribir
-  const previous = await env.MENU.get(KEY);
-  if (previous) {
-    await env.MENU.put(BACKUP_PREFIX + new Date().toISOString(), previous, { expirationTtl: BACKUP_TTL });
-  }
-  await env.MENU.put(KEY, JSON.stringify(clean));
+  const clean = await saveMenu(env, data);
   return json(request, { ok: true, updatedAt: clean.updatedAt });
 }

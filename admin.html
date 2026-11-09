@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — I Need Coffee</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<link href="fonts/fonts.css" rel="stylesheet">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta name="robots" content="noindex, nofollow">
 <style>
 :root{
   --bg:#0F0A06;--bg2:#18100A;--bg3:#221408;--bg4:#2C1A0E;
@@ -24,7 +26,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13
 .screen.visible{display:flex}
 
 /* AUTH */
-#screen-login,#screen-setup{flex-direction:column;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse 70% 60% at 50% 0%,#3D1F0D22 0%,transparent 70%)}
+#screen-login{flex-direction:column;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse 70% 60% at 50% 0%,#3D1F0D22 0%,transparent 70%)}
 .auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px 36px;width:100%;max-width:420px;box-shadow:var(--shadow)}
 .auth-logo{font-family:var(--serif);font-size:24px;color:var(--gold-hi);text-align:center;margin-bottom:4px}
 .auth-sub{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:32px}
@@ -43,9 +45,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13
 .auth-link a{color:var(--gold);text-decoration:none;cursor:pointer}
 .auth-link a:hover{color:var(--gold-hi)}
 .auth-error{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--danger-hi);margin-bottom:16px;display:none}
-.setup-steps{background:var(--bg3);border-radius:var(--r);padding:16px 18px;margin-bottom:24px;font-size:12px;line-height:2.1;color:var(--muted)}
-.setup-steps strong{color:var(--gold)}
-.setup-steps a{color:var(--gold-hi)}
 
 /* MAIN */
 #screen-main{flex-direction:column}
@@ -104,6 +103,14 @@ textarea{resize:vertical;min-height:52px;line-height:1.6}
 .toggle-hint{font-size:9px;letter-spacing:.06em;color:var(--muted);opacity:.7}
 .cafe-toggle{display:flex;align-items:center;gap:8px;margin-top:8px}
 
+/* HISTORIAL */
+.history-card{max-width:520px}
+#history-list{max-height:50vh;overflow:auto;margin-bottom:8px}
+.history-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--cream)}
+.history-row:first-child span{color:var(--gold-hi)}
+.history-empty{font-size:12px;color:var(--muted);text-align:center;padding:16px 0}
+.save-hint.dirty{color:var(--gold-hi)}
+
 /* MODAL CONTRASEÑA */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
 .modal.visible{display:flex}
@@ -158,30 +165,6 @@ textarea{resize:vertical;min-height:52px;line-height:1.6}
     <label class="auth-label">Contraseña</label>
     <input class="auth-input" type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn btn-primary" onclick="doLogin()">Entrar →</button>
-    <p class="auth-link"><a onclick="showScreen('setup')">Primera vez · Configurar JSONBin</a></p>
-  </div>
-</div>
-
-<!-- SETUP -->
-<div class="screen" id="screen-setup">
-  <div class="auth-card">
-    <p class="auth-logo">I Need Coffee</p>
-    <p class="auth-sub">Configuración inicial</p>
-    <div class="setup-steps">
-      1. Crea cuenta gratis en <a href="https://jsonbin.io" target="_blank"><strong>jsonbin.io</strong></a><br>
-      2. Ve a <strong>API Keys</strong> → copia tu <strong>Master Key</strong><br>
-      3. Haz clic en <strong>New Bin</strong> → escribe <code>{}</code> → guarda<br>
-      4. Copia el <strong>Bin ID</strong> de la URL del bin<br>
-      5. Pega ambos aquí y elige contraseña para el admin
-    </div>
-    <label class="auth-label">Bin ID</label>
-    <input class="auth-input" type="text" id="setup-bin" placeholder="67a8b2c3d4e5f6a7b8c9d0e1">
-    <label class="auth-label">Master Key</label>
-    <input class="auth-input" type="text" id="setup-key" placeholder="$2a$10$...">
-    <label class="auth-label">Contraseña del admin</label>
-    <input class="auth-input" type="password" id="setup-pass" placeholder="Mínimo 4 caracteres">
-    <button class="btn btn-primary" onclick="doSetup()">Guardar y entrar →</button>
-    <p class="auth-link"><a onclick="showScreen('login')">← Volver al login</a></p>
   </div>
 </div>
 
@@ -190,7 +173,8 @@ textarea{resize:vertical;min-height:52px;line-height:1.6}
   <header class="top-bar">
     <p class="top-logo"><em>I Need Coffee</em> · Admin</p>
     <span class="save-status" id="save-status"></span>
-    <button class="btn btn-ghost btn-sm" id="btn-pw" onclick="openPwModal()" style="display:none">🔑 Contraseña</button>
+    <button class="btn btn-ghost btn-sm" onclick="openHistory()">🕘 Historial</button>
+    <button class="btn btn-ghost btn-sm" onclick="openPwModal()">🔑 Contraseña</button>
     <button class="btn btn-ghost btn-sm" onclick="doLogout()">Salir</button>
   </header>
 
@@ -250,8 +234,19 @@ textarea{resize:vertical;min-height:52px;line-height:1.6}
   </div>
 
   <div class="save-bar">
-    <p class="save-hint">Los cambios se sincronizan en todos los dispositivos</p>
+    <p class="save-hint" id="save-hint">Los cambios se sincronizan en todos los dispositivos</p>
     <button class="btn btn-primary" onclick="saveAll()" style="width:160px">💾 Guardar todo</button>
+  </div>
+</div>
+
+<!-- HISTORIAL DE COPIAS -->
+<div class="modal" id="history-modal" onclick="if(event.target===this)closeHistory()">
+  <div class="auth-card history-card">
+    <p class="auth-logo">Historial</p>
+    <p class="auth-sub">Cada vez que guardas se crea una copia de la versión anterior (se conservan 90 días)</p>
+    <div class="auth-error" id="history-error"></div>
+    <div id="history-list"></div>
+    <p class="auth-link"><a onclick="closeHistory()">Cerrar</a></p>
   </div>
 </div>
 
@@ -351,19 +346,19 @@ var DEF = {
   ]
 };
 
-var CRED = null;
 var EXTRAS = [];
 var LOADED = false;          // no se puede guardar si la carta no se cargó bien
-var ADMIN_PW = '';           // contraseña (modo Cloudflare): solo en memoria
+var DIRTY = false;           // hay cambios sin guardar
+var ADMIN_PW = '';           // contraseña: solo en memoria, nunca se guarda en el dispositivo
 
-// Modo Cloudflare si config.js tiene la dirección; si no, JSONBin como antes
-function apiBase(){return (typeof INC_API_BASE==='string')?INC_API_BASE.replace(/\/+$/,''):'';}
-function useApi(){return !!apiBase();}
+// Dirección de la API (config.js). Si faltara, se usa la de Cloudflare.
+function apiBase(){
+  var b=(typeof INC_API_BASE==='string'&&INC_API_BASE)?INC_API_BASE:'https://ineed-coffee.pages.dev';
+  return b.replace(/\/+$/,'');
+}
 
-var LEGACY_JSONBIN=null;   // migración a Cloudflare completada
-
-function getCred(){try{return JSON.parse(localStorage.getItem('inc_cred')||'null');}catch(e){return null;}}
-function saveCred(c){try{localStorage.setItem('inc_cred',JSON.stringify(c));}catch(e){}}
+// Limpieza: borrar la clave antigua de JSONBin que pudiera quedar guardada en este dispositivo
+try{localStorage.removeItem('inc_cred');}catch(e){}
 
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('visible');});
@@ -377,36 +372,129 @@ function loginError(msg){
 
 function doLogin(){
   var pw=document.getElementById('login-pass').value;
-  if(useApi()){
-    fetch(apiBase()+'/api/menu',{method:'POST',headers:{'X-Admin-Password':pw}})
-    .then(function(r){
-      if(r.status===401){loginError('Contraseña incorrecta');return;}
-      if(!r.ok){loginError('El servidor no responde ('+r.status+'). Inténtalo en un momento.');return;}
-      ADMIN_PW=pw;
-      document.getElementById('btn-pw').style.display='';
-      document.getElementById('login-error').style.display='none';
-      loadAndShow();
-    })
-    .catch(function(){loginError('Sin conexión con el servidor');});
-    return;
-  }
-  CRED=getCred();
-  if(!CRED){showScreen('setup');return;}
-  if(pw!==CRED.password){loginError('Contraseña incorrecta');return;}
-  document.getElementById('login-error').style.display='none';
-  loadAndShow();
+  if(!pw){loginError('Escribe la contraseña');return;}
+  api('POST',null,pw).then(function(r){
+    if(r.status===401){loginError('Contraseña incorrecta');return;}
+    if(!r.ok){loginError('El servidor no responde ('+r.status+'). Inténtalo en un momento.');return;}
+    ADMIN_PW=pw;
+    document.getElementById('login-error').style.display='none';
+    loadAndShow();
+  }).catch(function(){loginError('Sin conexión con el servidor');});
 }
 
-function doSetup(){
-  var bin=document.getElementById('setup-bin').value.trim();
-  var key=document.getElementById('setup-key').value.trim();
-  var pw=document.getElementById('setup-pass').value;
-  if(!bin||!key||pw.length<4){alert('Completa todos los campos (contraseña mínimo 4 caracteres)');return;}
-  CRED={binId:bin,apiKey:key,password:pw};
-  saveCred(CRED);
-  loadAndShow();
+function doLogout(){
+  if(DIRTY&&!confirm('Tienes cambios sin guardar. ¿Salir igualmente y perderlos?'))return;
+  ADMIN_PW='';LOADED=false;setDirty(false);
+  showScreen('login');document.getElementById('login-pass').value='';
 }
 
+// ─ API ─
+function api(method,body,password){
+  var headers={'X-Admin-Password':password==null?ADMIN_PW:password};
+  if(body!=null)headers['Content-Type']='application/json';
+  return fetch(apiBase()+'/api/menu',{method:method,headers:headers,body:body==null?undefined:JSON.stringify(body),cache:'no-store'})
+    .then(function(r){return r.text().then(function(t){var d=null;try{d=t?JSON.parse(t):null;}catch(e){}return{ok:r.ok,status:r.status,data:d};});});
+}
+
+function apiGet(cb){
+  fetch(apiBase()+'/api/menu',{cache:'no-store'})
+  .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+  .then(function(d){cb(null,d);})
+  .catch(function(e){cb(e,null);});
+}
+
+function apiPut(data,cb){
+  api('PUT',data).then(function(r){
+    if(r.status===401){var e=new Error('auth');e.auth=true;throw e;}
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    cb(null);
+  }).catch(function(e){cb(e);});
+}
+
+// ─ CAMBIOS SIN GUARDAR ─
+function setDirty(v){
+  DIRTY=!!v;
+  var hint=document.getElementById('save-hint');
+  if(hint){hint.textContent=DIRTY?'● Hay cambios sin guardar':'Los cambios se sincronizan en todos los dispositivos';hint.classList.toggle('dirty',DIRTY);}
+}
+['input','change'].forEach(function(ev){
+  document.addEventListener(ev,function(e){
+    if(LOADED&&e.target.closest&&e.target.closest('#screen-main .tab-content'))setDirty(true);
+  });
+});
+window.addEventListener('beforeunload',function(e){
+  if(DIRTY){e.preventDefault();e.returnValue='';return '';}
+});
+
+function loadAndShow(){
+  LOADED=false;
+  setStatus('Cargando...','saving');
+  showScreen('main');
+  apiGet(function(err,record){
+    if(err||!record){
+      setStatus('Error al cargar ✗','error');
+      alert('No se pudo cargar la carta. No guardes nada y recarga la página en un momento.');
+      return;
+    }
+    var patches=record.patches||{};
+    EXTRAS=record.extras||[];
+    // Limpieza de valores heredados de versiones anteriores
+    ['bocadillo','bagel'].forEach(function(id){
+      if(patches[id]&&patches[id].desc)
+        patches[id].desc=patches[id].desc.replace(/^2 ingredientes\s*·\s*/i,'');
+    });
+    AUTO_DESC_IDS.forEach(function(id){if(patches[id])patches[id].desc='';});
+    renderAll(patches);
+    LOADED=true;setDirty(false);
+    setStatus('✓ Listo','saved');
+    setTimeout(function(){setStatus('','');},2500);
+  });
+}
+
+// ─ HISTORIAL DE COPIAS ─
+function fmtDate(iso){
+  var d=new Date(iso);if(isNaN(d))return iso;
+  return d.toLocaleString('es-ES',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+function openHistory(){
+  var list=document.getElementById('history-list');
+  document.getElementById('history-error').style.display='none';
+  list.innerHTML='<p class="history-empty">Cargando…</p>';
+  document.getElementById('history-modal').classList.add('visible');
+  api('POST',{action:'list_backups'}).then(function(r){
+    if(r.status===401){closeHistory();alert('La sesión ha caducado. Vuelve a entrar.');ADMIN_PW='';showScreen('login');return;}
+    if(!r.ok||!r.data){list.innerHTML='';historyError('No se pudo cargar el historial ('+r.status+')');return;}
+    var b=r.data.backups||[];
+    if(!b.length){list.innerHTML='<p class="history-empty">Todavía no hay copias. Se crea una cada vez que guardas.</p>';return;}
+    list.innerHTML='';
+    b.forEach(function(item,i){
+      var row=document.createElement('div');row.className='history-row';
+      var label=document.createElement('span');
+      label.textContent=fmtDate(item.date)+(i===0?'  ·  versión anterior al último guardado':'');
+      var btn=document.createElement('button');btn.className='btn btn-ghost btn-sm';btn.textContent='Restaurar';
+      btn.onclick=function(){restoreBackup(item,btn);};
+      row.appendChild(label);row.appendChild(btn);list.appendChild(row);
+    });
+  }).catch(function(){list.innerHTML='';historyError('Sin conexión con el servidor');});
+}
+function closeHistory(){document.getElementById('history-modal').classList.remove('visible');}
+function historyError(msg){var e=document.getElementById('history-error');e.textContent=msg;e.style.display='block';}
+
+function restoreBackup(item,btn){
+  var msg='¿Volver a la carta tal como estaba el '+fmtDate(item.date)+'?\n\nLa versión actual no se pierde: queda guardada en el historial.';
+  if(DIRTY)msg+='\n\nOjo: los cambios que no has guardado se perderán.';
+  if(!confirm(msg))return;
+  btn.disabled=true;btn.textContent='Restaurando…';
+  api('POST',{action:'restore',key:item.key}).then(function(r){
+    if(!r.ok){btn.disabled=false;btn.textContent='Restaurar';historyError('No se pudo restaurar ('+r.status+')');return;}
+    closeHistory();
+    loadAndShow();
+    setTimeout(function(){setStatus('✓ Carta restaurada','saved');},600);
+  }).catch(function(){btn.disabled=false;btn.textContent='Restaurar';historyError('Sin conexión con el servidor');});
+}
+
+// ─ CAMBIAR CONTRASEÑA ─
 function openPwModal(){
   ['pw-current','pw-new','pw-new2'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('pw-error').style.display='none';
@@ -428,11 +516,7 @@ function doChangePassword(){
   if(n1!==n2){pwError('Las contraseñas nuevas no coinciden');return;}
   if(n1===cur){pwError('La nueva contraseña es igual a la actual');return;}
   var btn=document.getElementById('pw-submit');btn.disabled=true;
-  fetch(apiBase()+'/api/menu',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','X-Admin-Password':cur},
-    body:JSON.stringify({action:'change_password',newPassword:n1})
-  }).then(function(r){
+  api('POST',{action:'change_password',newPassword:n1},cur).then(function(r){
     btn.disabled=false;
     if(r.status===401){pwError('La contraseña actual no es correcta');return;}
     if(r.status===400){pwError('La nueva contraseña no es válida (mínimo 8 caracteres)');return;}
@@ -443,93 +527,6 @@ function doChangePassword(){
   }).catch(function(){btn.disabled=false;pwError('Sin conexión con el servidor');});
 }
 
-function doLogout(){ADMIN_PW='';LOADED=false;showScreen('login');document.getElementById('login-pass').value='';}
-
-function jsonbinGet(cred,cb){
-  fetch('https://api.jsonbin.io/v3/b/'+cred.binId+'/latest',{
-    headers:{'X-Master-Key':cred.apiKey,'X-Bin-Meta':'false'}
-  }).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-  .then(function(d){cb(null,d.record||d||{});})
-  .catch(function(e){cb(e,null);});
-}
-
-function jsonbinPut(data,cb){
-  fetch('https://api.jsonbin.io/v3/b/'+CRED.binId,{
-    method:'PUT',
-    headers:{'Content-Type':'application/json','X-Master-Key':CRED.apiKey},
-    body:JSON.stringify(data)
-  }).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);cb(null);})
-  .catch(function(e){cb(e);});
-}
-
-function apiGet(cb){
-  fetch(apiBase()+'/api/menu',{cache:'no-store'})
-  .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-  .then(function(d){cb(null,d);})
-  .catch(function(e){cb(e,null);});
-}
-
-function apiPut(data,cb){
-  fetch(apiBase()+'/api/menu',{
-    method:'PUT',
-    headers:{'Content-Type':'application/json','X-Admin-Password':ADMIN_PW},
-    body:JSON.stringify(data)
-  }).then(function(r){
-    if(r.status===401){var e=new Error('auth');e.auth=true;throw e;}
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    cb(null);
-  }).catch(function(e){cb(e);});
-}
-
-// Carga la carta. En modo Cloudflare, si el servidor está vacío,
-// importa automáticamente lo que había en JSONBin y lo guarda en Cloudflare.
-function loadRecord(cb){
-  if(!useApi()){CRED=getCred();jsonbinGet(CRED,function(err,rec){cb(err,rec,false);});return;}
-  apiGet(function(err,rec){
-    if(err)return cb(err,null,false);
-    if(!rec.empty)return cb(null,rec,false);
-    var cred=getCred();
-    if(!cred)return cb(null,{patches:{},extras:[]},false);
-    jsonbinGet(cred,function(err2,old){cb(err2,old,true);});
-  });
-}
-
-function loadAndShow(){
-  LOADED=false;
-  setStatus('Cargando...','saving');
-  showScreen('main');
-  loadRecord(function(err,record,imported){
-    if(err||!record){
-      setStatus('Error al cargar ✗','error');
-      alert('No se pudo cargar la carta. No guardes nada y recarga la página en un momento.');
-      return;
-    }
-    var patches=record.patches||{};
-    EXTRAS=record.extras||[];
-    // Limpieza: eliminar "2 ingredientes · " heredado de versiones anteriores
-    ['bocadillo','bagel'].forEach(function(id){
-      if(patches[id]&&patches[id].desc)
-        patches[id].desc=patches[id].desc.replace(/^2 ingredientes\s*·\s*/i,'');
-    });
-    // Limpieza: valores por defecto antiguos → nuevos
-    if(patches.bizcocho&&patches.bizcocho.name==='Bizcocho vegano casero')
-      patches.bizcocho.name='Bizcochos veganos sin gluten casero';
-    if(patches.ing_especial&&patches.ing_especial.list)
-      patches.ing_especial.list=patches.ing_especial.list.replace(/pistacchio/gi,'pistacho');
-    AUTO_DESC_IDS.forEach(function(id){if(patches[id])patches[id].desc='';});
-    renderAll(patches);
-    LOADED=true;
-    if(imported){
-      setStatus('Importando datos...','saving');
-      saveAll(function(ok){
-        if(ok)setStatus('✓ Datos importados de JSONBin','saved');
-      });
-      return;
-    }
-    setStatus('✓ Listo','saved');
-    setTimeout(function(){setStatus('','');},2500);
-  });
-}
 
 function renderAll(patches){
   renderSection('comida',patches,makeMenuRow);
@@ -749,6 +746,7 @@ function addExtra(section){
   else if(section==='granos') ex={id:id,section:section,origin:'',price:'',desc:'',scores:''};
   else ex={id:id,section:section,name:'',price:'',desc:''};
   EXTRAS.push(ex);
+  setDirty(true);
   var container=document.getElementById('list-'+section);
   var node;
   if(section==='batidos') node=makeBatidoRow(ex,true);
@@ -762,6 +760,7 @@ function addExtra(section){
 
 function removeExtra(id){
   EXTRAS=EXTRAS.filter(function(e){return e.id!==id;});
+  setDirty(true);
   var node=document.querySelector('[data-id="'+id+'"]');
   if(node)node.remove();
 }
@@ -820,10 +819,10 @@ function saveAll(done){
   });
   var extras=collectExtras();
   setStatus('Guardando...','saving');
-  var put=useApi()?apiPut:jsonbinPut;
-  put({patches:patches,extras:extras},function(err){
-    if(err&&err.auth){setStatus('','');alert('La sesión ha caducado o la contraseña cambió. Vuelve a entrar.');doLogout();return;}
-    if(err){setStatus('Error al guardar ✗','error');if(typeof done==='function')done(false);return;}
+  apiPut({patches:patches,extras:extras},function(err){
+    if(err&&err.auth){setStatus('','');alert('La sesión ha caducado o la contraseña cambió. Vuelve a entrar. Tus cambios siguen en pantalla: no recargues la página.');ADMIN_PW='';showScreen('login');return;}
+    if(err){setStatus('Error al guardar ✗','error');alert('No se pudo guardar. Revisa la conexión e inténtalo de nuevo; tus cambios siguen en pantalla.');if(typeof done==='function')done(false);return;}
+    setDirty(false);
     setStatus('✓ Guardado','saved');
     setTimeout(function(){setStatus('','');},3000);
     if(typeof done==='function')done(true);
@@ -849,12 +848,6 @@ function esc(str){return(str||'').toString().replace(/&/g,'&amp;').replace(/"/g,
 
 // ─ INIT ─
 (function(){
-  if(useApi()){
-    var link=document.querySelector('#screen-login .auth-link');if(link)link.style.display='none';
-  } else {
-    var cred=getCred();
-    if(!cred){showScreen('setup');return;}
-  }
   showScreen('login');
   setTimeout(function(){var pw=document.getElementById('login-pass');if(pw)pw.focus();},100);
 })();
